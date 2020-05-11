@@ -1,0 +1,49 @@
+{
+  "name": "xprofiler-console",
+  "version": "1.0.0",
+  "description": "console for xprofiler",
+  "private": true,
+  "egg": {
+    "declarations": true
+  },
+  "dependencies": {
+    "egg": "^2.26.0",
+    "egg-mysql": "^3.0.0",
+    "egg-scripts": "^2.13.0",
+    "egg-view-nunjucks": "^2.2.0"
+  },
+  "devDependencies": {
+    "autod": "^3.1.0",
+    "autod-egg": "^1.1.0",
+    "basic-auth": "^2.0.1",
+    "egg-bin": "^4.14.1",
+    "egg-ci": "^1.15.0",
+    "egg-mock": "^4.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-egg": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "start": "egg-scripts start --daemon --title=egg-server-xprofiler-console",
+    "stop": "egg-scripts stop --title=egg-server-xprofiler-console",
+    "dev": "egg-bin dev --port=8443",
+    "debug": "egg-bin debug",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint app config test --fix",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod"
+  },
+  "ci": {
+    "version": "10"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "yeekwanvong@gmail.com",
+  "license": "MIT"
+}
