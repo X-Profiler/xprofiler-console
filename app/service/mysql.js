@@ -39,6 +39,18 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  renameApp(appId, newAppName) {
+    const sql = 'UPDATE apps SET name = ? WHERE id = ?';
+    const params = [newAppName, appId];
+    return this.consoleQuery(sql, params);
+  }
+
+  deleteApp(appId) {
+    const sql = 'DELETE FROM apps WHERE id = ?';
+    const params = [appId];
+    return this.consoleQuery(sql, params);
+  }
+
   checkAppOwnerByUserId(appId, userId) {
     const sql = 'SELECT * FROM apps WHERE id = ? AND owner = ?';
     const params = [appId, userId];

@@ -20,7 +20,7 @@ module.exports = () => {
       handleAuthFailed(ctx, 401, 'login first');
     },
 
-    // check user is member of app
+    // check user is owner/member of app
     async appMemberRequired(ctx, next) {
       const { service: { mysql } } = ctx;
       const appId = ctx.query.appId || ctx.request.body.appId;
@@ -39,6 +39,23 @@ module.exports = () => {
           return await next();
         }
         handleAuthFailed(ctx, 403, 'you don\'t have permission to access this app');
+      } else {
+        handleAuthFailed(ctx, 500, 'lack of params');
+      }
+    },
+
+    // check user is owner of app
+    async appOwnerRequired(ctx, next) {
+      const { service: { mysql } } = ctx;
+      const appId = ctx.query.appId || ctx.request.body.appId;
+      if (appId) {
+        const { userId } = ctx.user;
+        const owner = await mysql.checkAppOwnerByUserId(appId, userId);
+        if (owner) {
+          ctx.appInfo = { owner: true, info: owner };
+          return await next();
+        }
+        handleAuthFailed(ctx, 403, 'you don\'t have permission to access this page');
       } else {
         handleAuthFailed(ctx, 500, 'lack of params');
       }
