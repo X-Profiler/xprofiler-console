@@ -38,6 +38,13 @@ class AppController extends Controller {
 
     ctx.body = { ok: true, data };
   }
+
+  async getAppInfo() {
+    const { ctx } = this;
+    const { owner: currentUserIsOwner, info: { name: appName } } = ctx.appInfo;
+
+    ctx.body = { ok: true, data: { currentUserIsOwner, appName } };
+  }
 }
 
 module.exports = AppController;

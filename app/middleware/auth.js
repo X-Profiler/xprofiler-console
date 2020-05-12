@@ -1,18 +1,46 @@
 'use strict';
 
+function handleAuthFailed(ctx, code, message) {
+  // const { app } = ctx;
+  // if (app.isAjax(ctx.headers)) {
+  //   ctx.body = { ok: false, message, code };
+  // } else {
+  //   ctx.redirect(`/${code}`);
+  // }
+  ctx.body = { ok: false, message, code };
+}
+
 module.exports = () => {
   return {
+    // check user login
     async userRequired(ctx, next) {
       if (ctx.user) {
-        await next();
+        return await next();
+      }
+      handleAuthFailed(ctx, 401, 'login first');
+    },
+
+    // check user is member of app
+    async appMemberRequired(ctx, next) {
+      const { service: { mysql } } = ctx;
+      const appId = ctx.query.appId || ctx.request.body.appId;
+      if (appId) {
+        const { userId } = ctx.user;
+        const tasks = [];
+        tasks.push(mysql.checkAppOwnerByUserId(appId, userId));
+        tasks.push(mysql.checkAppMemberByUserId(appId, userId));
+        const [owner, member] = await Promise.all(tasks);
+        if (owner) {
+          ctx.appInfo = { owner: true, info: owner };
+          return await next();
+        }
+        if (member) {
+          ctx.appInfo = { owner: false, info: member };
+          return await next();
+        }
+        handleAuthFailed(ctx, 403, 'you don\'t have permission to access this app');
       } else {
-        // const { app } = ctx;
-        // if (app.isAjax(ctx.headers)) {
-        //   ctx.body = { ok: false, message: 'login first', code: 403 };
-        // } else {
-        //   ctx.redirect('/403');
-        // }
-        ctx.body = { ok: false, message: 'login first', code: 401 };
+        handleAuthFailed(ctx, 500, 'lack of params');
       }
     },
   };

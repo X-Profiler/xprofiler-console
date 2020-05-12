@@ -38,6 +38,18 @@ class MysqlService extends Service {
     const params = [appName, userId, secret];
     return this.consoleQuery(sql, params);
   }
+
+  checkAppOwnerByUserId(appId, userId) {
+    const sql = 'SELECT * FROM apps WHERE id = ? AND owner = ?';
+    const params = [appId, userId];
+    return this.consoleQuery(sql, params).then(data => data[0]);
+  }
+
+  checkAppMemberByUserId(appId, userId) {
+    const sql = 'SELECT * FROM members WHERE app = ? AND user = ?';
+    const params = [appId, userId];
+    return this.consoleQuery(sql, params).then(data => data[0]);
+  }
 }
 
 module.exports = MysqlService;
