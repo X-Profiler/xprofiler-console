@@ -14,4 +14,8 @@ module.exports = app => {
 
   // user
   router.get('/xapi/user', userRequired, 'user.index');
+
+  // app
+  router.get('/xapi/apps', userRequired, 'app.getApps');
+  router.post('/xapi/app', userRequired, 'app.saveApp');
 };
