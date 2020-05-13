@@ -57,16 +57,11 @@ class TeamController extends Controller {
       return;
     }
 
-    try {
-      await mysql.inviteMember(appId, user.id);
-      ctx.body = { ok: true };
-    } catch (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        ctx.body = { ok: false, message: '不能重复邀请用户' };
-        return;
-      }
-      ctx.body = { ok: false, message: '服务器错误，邀请失败，请重试' };
+    const res = await ctx.tryCatch('mysql', 'inviteMember', [appId, user.id], '不能重复邀请用户');
+    if (!res) {
+      return;
     }
+    ctx.body = { ok: true };
   }
 }
 
