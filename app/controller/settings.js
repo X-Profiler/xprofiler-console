@@ -23,7 +23,10 @@ class SettingsController extends Controller {
     const { ctx, ctx: { service: { mysql } } } = this;
     const { appId } = ctx.request.body;
 
-    await mysql.deleteApp(appId);
+    const tasks = [];
+    tasks.push(mysql.deleteAppByAppId(appId));
+    tasks.push(mysql.deleteMembersByAppId(appId));
+    await Promise.all(tasks);
 
     ctx.body = { ok: true };
   }

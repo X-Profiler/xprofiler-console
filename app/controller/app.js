@@ -14,12 +14,12 @@ class AppController extends Controller {
       list = await mysql.getMyApps(userId);
     }
     if (type === 'joinedApps') {
-      list = await mysql.getJoinedApps(userId);
+      list = await mysql.getJoinedApps(userId, 2);
     }
     list = list.map(({ name, id: appId }) => ({ name, appId }));
 
     // get invitations
-    const invitedApps = await mysql.getInvitedApps(userId);
+    const invitedApps = await mysql.getJoinedApps(userId, 1);
     const users = await ctx.getUserMap(invitedApps.map(item => item.owner));
     const invitations = invitedApps.map(app => {
       const { id: appId, name: appName, owner } = app;

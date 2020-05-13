@@ -12,6 +12,7 @@
     "egg-scripts": "^2.13.0",
     "egg-view-nunjucks": "^2.2.0",
     "kitx": "^2.1.0",
+    "p-map": "^4.0.0",
     "uuid": "^8.0.0"
   },
   "devDependencies": {

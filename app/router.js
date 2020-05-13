@@ -12,7 +12,7 @@ module.exports = app => {
     appOwnerRequired,
   } = app.middlewares.auth({}, app);
   const {
-    checkParams
+    checkParams,
   } = app.middleware.params({}, app);
 
   // home
@@ -30,6 +30,9 @@ module.exports = app => {
   router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');
   router.get('/xapi/team_members', userRequired, appMemberRequired, 'team.getMembers');
   router.post('/xapi/team_member', userRequired, appMemberRequired, checkParams(['userId']), 'team.inviteMember');
+  router.delete('/xapi/leave_team', userRequired, appMemberRequired, 'team.leaveTeam');
+  router.delete('/xapi/team_member', userRequired, appOwnerRequired, checkParams(['userId']), 'team.removeMember');
+  router.post('/xapi/team_ownership', userRequired, appOwnerRequired, checkParams(['userId']), 'team.transferOwnership');
 
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');

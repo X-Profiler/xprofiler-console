@@ -39,20 +39,14 @@ class MysqlService extends Service {
 
   /* table <apps> */
   getMyApps(userId) {
-    const sql = 'SELECT * FROM apps WHERE owner = ?';
+    const sql = 'SELECT * FROM apps WHERE owner = ? ORDER BY gm_modified ASC';
     const params = [userId];
     return this.query(sql, params);
   }
 
-  getJoinedApps(userId) {
-    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE user = ? AND status = ?)';
-    const params = [userId, 2];
-    return this.query(sql, params);
-  }
-
-  getInvitedApps(userId) {
-    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE user = ? AND status = ?)';
-    const params = [userId, 1];
+  getJoinedApps(userId, status) {
+    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE user = ? AND status = ?) ORDER BY gm_modified ASC';
+    const params = [userId, status];
     return this.query(sql, params);
   }
 
@@ -74,7 +68,7 @@ class MysqlService extends Service {
     return this.query(sql, params).then(data => data[0] || {});
   }
 
-  deleteApp(appId) {
+  deleteAppByAppId(appId) {
     const sql = 'DELETE FROM apps WHERE id = ?';
     const params = [appId];
     return this.query(sql, params);
@@ -92,6 +86,12 @@ class MysqlService extends Service {
     return this.query(sql, params).then(data => data[0]);
   }
 
+  updateAppOwner(appId, userId) {
+    const sql = 'UPDATE apps SET owner = ? WHERE id = ?';
+    const params = [userId, appId];
+    return this.query(sql, params);
+  }
+
   /* table <members> */
   getTeamMembersByAppId(appId) {
     const sql = 'SELECT * FROM members WHERE app = ?';
@@ -99,9 +99,9 @@ class MysqlService extends Service {
     return this.query(sql, params);
   }
 
-  inviteMember(appId, invitedUser) {
+  inviteMember(appId, invitedUser, status) {
     const sql = 'INSERT INTO members (app, user, status) VALUES (?, ?, ?)';
-    const params = [appId, invitedUser, 1];
+    const params = [appId, invitedUser, status];
     return this.query(sql, params);
   }
 
@@ -114,6 +114,12 @@ class MysqlService extends Service {
   deleteMember(appId, userId) {
     const sql = 'DELETE FROM members WHERE app = ? AND user = ?';
     const params = [appId, userId];
+    return this.query(sql, params);
+  }
+
+  deleteMembersByAppId(appId) {
+    const sql = 'DELETE FROM members WHERE app = ?';
+    const params = [appId];
     return this.query(sql, params);
   }
 }

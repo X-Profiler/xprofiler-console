@@ -1,5 +1,6 @@
 'use strict';
 
+const pMap = require('p-map');
 const Controller = require('egg').Controller;
 
 class TeamController extends Controller {
@@ -53,7 +54,7 @@ class TeamController extends Controller {
       return;
     }
 
-    const res = await ctx.tryCatch('mysql', 'inviteMember', [appId, user.id], '不能重复邀请用户');
+    const res = await ctx.tryCatch('mysql', 'inviteMember', [appId, user.id, 1], '不能重复邀请用户');
     if (!res) {
       return;
     }
@@ -70,6 +71,41 @@ class TeamController extends Controller {
     } else {
       await mysql.deleteMember(invitedApp, userId);
     }
+
+    ctx.body = { ok: true };
+  }
+
+  async leaveTeam() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { appId } = ctx.request.body;
+    const { userId } = ctx.user;
+
+    await mysql.deleteMember(appId, userId);
+
+    ctx.body = { ok: true };
+  }
+
+  async removeMember() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { appId, userId: invitedUser } = ctx.request.body;
+
+    await mysql.deleteMember(appId, invitedUser);
+
+    ctx.body = { ok: true };
+  }
+
+  async transferOwnership() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { appId, userId: transferringUser } = ctx.request.body;
+    const { userId: currentUserId } = ctx.user;
+
+    const tasks = [];
+    tasks.push(mysql.updateAppOwner(appId, transferringUser));
+    tasks.push(mysql.deleteMember(appId, transferringUser));
+    tasks.push(mysql.inviteMember(appId, currentUserId, 2));
+    await pMap(tasks, async func => {
+      await func;
+    }, { concurrency: 2 });
 
     ctx.body = { ok: true };
   }
