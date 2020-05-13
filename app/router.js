@@ -11,6 +11,9 @@ module.exports = app => {
     appMemberRequired,
     appOwnerRequired,
   } = app.middlewares.auth({}, app);
+  const {
+    checkParams
+  } = app.middleware.params({}, app);
 
   // home
   router.get('/', userRequired, 'home.index');
@@ -19,17 +22,17 @@ module.exports = app => {
   router.get('/xapi/user', userRequired, 'user.index');
 
   // app
-  router.get('/xapi/apps', userRequired, 'app.getApps');
-  router.post('/xapi/app', userRequired, 'app.saveApp');
+  router.get('/xapi/apps', userRequired, checkParams(['type']), 'app.getApps');
+  router.post('/xapi/app', userRequired, checkParams(['newAppName']), 'app.saveApp');
   router.get('/xapi/app', userRequired, appMemberRequired, 'app.getAppInfo');
 
   // team
-  router.put('/xapi/invitation', userRequired, appInvitationRequired, 'team.updateInvitation');
+  router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');
   router.get('/xapi/team_members', userRequired, appMemberRequired, 'team.getMembers');
-  router.post('/xapi/team_member', userRequired, appMemberRequired, 'team.inviteMember');
+  router.post('/xapi/team_member', userRequired, appMemberRequired, checkParams(['userId']), 'team.inviteMember');
 
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');
-  router.put('/xapi/settings_app_name', userRequired, appOwnerRequired, 'settings.renameApp');
+  router.put('/xapi/settings_app_name', userRequired, appOwnerRequired, checkParams(['newAppName']), 'settings.renameApp');
   router.delete('/xapi/settings_app', userRequired, appOwnerRequired, 'settings.deleteApp');
 };
