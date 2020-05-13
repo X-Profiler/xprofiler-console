@@ -17,7 +17,7 @@ module.exports = () => {
       if (ctx.user) {
         return await next();
       }
-      handleAuthFailed(ctx, 401, 'login first');
+      handleAuthFailed(ctx, 401, '请先登录');
     },
 
     // check user is invited into app
@@ -26,13 +26,13 @@ module.exports = () => {
       const appId = ctx.query.appId || ctx.request.body.appId;
       if (appId) {
         const { userId } = ctx.user;
-        const member = await mysql.checkMemberStatusByUserId(appId, userId, 1);
+        const member = await mysql.checkAppMemberByUserId(appId, userId, 1);
         if (member) {
           return await next();
         }
-        handleAuthFailed(ctx, 403, 'you haven\'t been invited to this app');
+        handleAuthFailed(ctx, 403, '您没有被邀请至此应用');
       } else {
-        handleAuthFailed(ctx, 400, 'lack of params');
+        handleAuthFailed(ctx, 400, '缺少参数');
       }
     },
 
@@ -44,7 +44,7 @@ module.exports = () => {
         const { userId } = ctx.user;
         const tasks = [];
         tasks.push(mysql.checkAppOwnerByUserId(appId, userId));
-        tasks.push(mysql.checkMemberStatusByUserId(appId, userId, 2));
+        tasks.push(mysql.checkAppMemberByUserId(appId, userId, 2));
         const [owner, member] = await Promise.all(tasks);
         if (owner) {
           ctx.appInfo = { owner: true, info: owner };
@@ -54,9 +54,9 @@ module.exports = () => {
           ctx.appInfo = { owner: false, info: member };
           return await next();
         }
-        handleAuthFailed(ctx, 403, 'you don\'t have permission to access this app');
+        handleAuthFailed(ctx, 403, '您没有此应用的访问权限');
       } else {
-        handleAuthFailed(ctx, 400, 'lack of params');
+        handleAuthFailed(ctx, 400, '缺少参数');
       }
     },
 
@@ -71,9 +71,9 @@ module.exports = () => {
           ctx.appInfo = { owner: true, info: owner };
           return await next();
         }
-        handleAuthFailed(ctx, 403, 'you don\'t have permission to access this page');
+        handleAuthFailed(ctx, 403, '您没有此页面的访问权限');
       } else {
-        handleAuthFailed(ctx, 400, 'lack of params');
+        handleAuthFailed(ctx, 400, '缺少参数');
       }
     },
   };

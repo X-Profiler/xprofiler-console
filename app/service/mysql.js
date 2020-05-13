@@ -86,17 +86,17 @@ class MysqlService extends Service {
     return this.query(sql, params).then(data => data[0]);
   }
 
+  checkAppMemberByUserId(appId, userId, status) {
+    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE app = ? AND user = ? AND status = ?)';
+    const params = [appId, userId, status];
+    return this.query(sql, params).then(data => data[0]);
+  }
+
   /* table <members> */
   getTeamMembersByAppId(appId) {
     const sql = 'SELECT * FROM members WHERE app = ?';
     const params = [appId];
     return this.query(sql, params);
-  }
-
-  checkMemberStatusByUserId(appId, userId, status) {
-    const sql = 'SELECT * FROM members WHERE app = ? AND user = ? AND status = ?';
-    const params = [appId, userId, status];
-    return this.query(sql, params).then(data => data[0]);
   }
 
   inviteMember(appId, invitedUser) {
