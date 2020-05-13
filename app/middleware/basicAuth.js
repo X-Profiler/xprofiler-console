@@ -17,7 +17,8 @@ module.exports = () => {
       // save user first time
       const user = await mysql.getUserByName(name);
       if (!user) {
-        const res = await mysql.saveUser(name, pass);
+        const identity = parseInt((Math.random() * 9 + 1) * 10e4);
+        const res = await mysql.saveUser(name, pass, identity);
         ctx.user = {
           userId: res.insertId,
           name,

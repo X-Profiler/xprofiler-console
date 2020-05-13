@@ -22,6 +22,10 @@ module.exports = app => {
   router.post('/xapi/app', userRequired, 'app.saveApp');
   router.get('/xapi/app', userRequired, appMemberRequired, 'app.getAppInfo');
 
+  // team
+  router.get('/xapi/team_members', userRequired, appMemberRequired, 'team.getMembers');
+  router.post('/xapi/team_member', userRequired, appMemberRequired, 'team.inviteMember');
+
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');
   router.put('/xapi/settings_app_name', userRequired, appOwnerRequired, 'settings.renameApp');

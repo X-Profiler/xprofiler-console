@@ -30,13 +30,21 @@ class AppController extends Controller {
     const { newAppName } = ctx.request.body;
 
     const appSecret = app.createAppSecret(userId, newAppName);
-    const { insertId: appId } = await mysql.saveApp(userId, newAppName, appSecret);
-    const data = {
-      appName: newAppName,
-      appId, appSecret,
-    };
 
-    ctx.body = { ok: true, data };
+    try {
+      const { insertId: appId } = await mysql.saveApp(userId, newAppName, appSecret);
+      const data = {
+        appName: newAppName,
+        appId, appSecret,
+      };
+      ctx.body = { ok: true, data };
+    } catch (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        ctx.body = { ok: false, message: '不能创建重复应用' };
+        return;
+      }
+      ctx.body = { ok: false, message: '服务器错误，邀请失败，请重试' };
+    }
   }
 
   async getAppInfo() {
