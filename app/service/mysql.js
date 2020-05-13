@@ -29,6 +29,9 @@ class MysqlService extends Service {
   }
 
   getUserByUserIds(userIds) {
+    if (!userIds.length) {
+      return [];
+    }
     const sql = `SELECT * FROM user WHERE id in (${userIds.map(() => '?').join(',')})`;
     const params = [...userIds];
     return this.query(sql, params);
@@ -42,8 +45,14 @@ class MysqlService extends Service {
   }
 
   getJoinedApps(userId) {
-    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE user = ?)';
-    const params = [userId];
+    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE user = ? AND status = ?)';
+    const params = [userId, 2];
+    return this.query(sql, params);
+  }
+
+  getInvitedApps(userId) {
+    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE user = ? AND status = ?)';
+    const params = [userId, 1];
     return this.query(sql, params);
   }
 
@@ -84,15 +93,27 @@ class MysqlService extends Service {
     return this.query(sql, params);
   }
 
-  checkAppMemberByUserId(appId, userId) {
+  checkMemberStatusByUserId(appId, userId, status) {
     const sql = 'SELECT * FROM members WHERE app = ? AND user = ? AND status = ?';
-    const params = [appId, userId, 2];
+    const params = [appId, userId, status];
     return this.query(sql, params).then(data => data[0]);
   }
 
   inviteMember(appId, invitedUser) {
     const sql = 'INSERT INTO members (app, user, status) VALUES (?, ?, ?)';
     const params = [appId, invitedUser, 1];
+    return this.query(sql, params);
+  }
+
+  confirmInvitation(invitedApp, userId) {
+    const sql = 'UPDATE members SET status = ? WHERE app = ? AND user = ?';
+    const params = [2, invitedApp, userId];
+    return this.query(sql, params);
+  }
+
+  deleteMember(appId, userId) {
+    const sql = 'DELETE FROM members WHERE app = ? AND user = ?';
+    const params = [appId, userId];
     return this.query(sql, params);
   }
 }

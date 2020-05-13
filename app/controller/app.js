@@ -19,7 +19,15 @@ class AppController extends Controller {
     list = list.map(({ name, id: appId }) => ({ name, appId }));
 
     // get invitations
-    const invitations = [];
+    const invitedApps = await mysql.getInvitedApps(userId);
+    const users = await ctx.getUserMap(invitedApps.map(item => item.owner));
+    const invitations = invitedApps.map(app => {
+      const { id: appId, name: appName, owner } = app;
+      return {
+        appId, appName,
+        ownerInfo: users[owner].name,
+      };
+    });
 
     ctx.body = { ok: true, data: { list, invitations } };
   }

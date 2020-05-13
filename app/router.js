@@ -7,6 +7,7 @@ module.exports = app => {
   const { router } = app;
   const {
     userRequired,
+    appInvitationRequired,
     appMemberRequired,
     appOwnerRequired,
   } = app.middlewares.auth({}, app);
@@ -23,6 +24,7 @@ module.exports = app => {
   router.get('/xapi/app', userRequired, appMemberRequired, 'app.getAppInfo');
 
   // team
+  router.put('/xapi/invitation', userRequired, appInvitationRequired, 'team.updateInvitation');
   router.get('/xapi/team_members', userRequired, appMemberRequired, 'team.getMembers');
   router.post('/xapi/team_member', userRequired, appMemberRequired, 'team.inviteMember');
 

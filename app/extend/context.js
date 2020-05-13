@@ -21,4 +21,14 @@ module.exports = {
     }
     return res;
   },
+
+  async getUserMap(userIds) {
+    const { service: { mysql } } = this;
+    let users = await mysql.getUserByUserIds(userIds);
+    users = users.reduce((map, user) => {
+      map[user.id] = user;
+      return map;
+    }, {});
+    return users;
+  },
 };

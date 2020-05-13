@@ -29,11 +29,7 @@ class TeamController extends Controller {
     });
 
     // add user name
-    let users = await mysql.getUserByUserIds(list.map(item => item.userId));
-    users = users.reduce((map, user) => {
-      map[user.id] = user;
-      return map;
-    }, {});
+    const users = await ctx.getUserMap(list.map(item => item.userId));
     list.forEach(item => {
       const { name, identity } = users[item.userId];
       item.userInfo = `${name} (${identity})`;
@@ -61,6 +57,20 @@ class TeamController extends Controller {
     if (!res) {
       return;
     }
+    ctx.body = { ok: true };
+  }
+
+  async updateInvitation() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { appId: invitedApp, status } = ctx.request.body;
+    const { userId } = ctx.user;
+
+    if (status) {
+      await mysql.confirmInvitation(invitedApp, userId);
+    } else {
+      await mysql.deleteMember(invitedApp, userId);
+    }
+
     ctx.body = { ok: true };
   }
 }
