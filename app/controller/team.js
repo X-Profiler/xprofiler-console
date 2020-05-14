@@ -32,7 +32,12 @@ class TeamController extends Controller {
     // add user name
     const users = await ctx.getUserMap(list.map(item => item.userId));
     list.forEach(item => {
-      const { name, identity } = users[item.userId];
+      const user = users[item.userId];
+      if (!user) {
+        item.userInfo = 'Unknown';
+        return;
+      }
+      const { name, identity } = user;
       item.userInfo = `${name} (${identity})`;
     });
 

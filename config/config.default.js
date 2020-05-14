@@ -29,31 +29,31 @@ module.exports = appInfo => {
     '/favicon.ico': fs.readFileSync(path.join(__dirname, '../app/public/favicon.ico')),
   };
 
-  const userConfig = {
-    view: {
-      mapping: {
-        '.html': 'nunjucks',
-      },
-    },
+  const userConfig = {};
 
-    mysql: {
-      app: true,
-      agent: false,
-      clients: {
-        xprofiler_console: {
-          host: '',
-          port: 3306,
-          user: '',
-          password: '',
-          database: 'xprofiler_console',
-        },
-        xprofiler_logs: {
-          host: '',
-          port: 3306,
-          user: '',
-          password: '',
-          database: 'xprofiler_logs',
-        },
+  userConfig.view = {
+    mapping: {
+      '.html': 'nunjucks',
+    },
+  };
+
+  userConfig.mysql = {
+    app: true,
+    agent: false,
+    clients: {
+      xprofiler_console: {
+        host: '',
+        port: 3306,
+        user: '',
+        password: '',
+        database: 'xprofiler_console',
+      },
+      xprofiler_logs: {
+        host: '',
+        port: 3306,
+        user: '',
+        password: '',
+        database: 'xprofiler_logs',
       },
     },
   };
