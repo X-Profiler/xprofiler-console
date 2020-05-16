@@ -29,6 +29,9 @@ module.exports = app => {
   // overview
   router.get('/xapi/overview_metrics', userRequired, appMemberRequired, 'overview.getMetrics');
 
+  // instance
+  router.get('/xapi/agents', userRequired, appMemberRequired, 'instance.getAgents');
+
   // team
   router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');
   router.get('/xapi/team_members', userRequired, appMemberRequired, 'team.getMembers');
