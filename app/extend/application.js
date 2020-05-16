@@ -1,6 +1,7 @@
 'use strict';
 
 const kitx = require('kitx');
+const crypto = require('crypto');
 const { v4 } = require('uuid');
 
 module.exports = {
@@ -17,5 +18,12 @@ module.exports = {
     const rawSecret = `${userId}::${appName}::${v4()}::${this.randomStr()}`;
     const secret = kitx.md5(rawSecret, 'hex');
     return secret;
+  },
+
+  sign(message, secret) {
+    if (typeof message !== 'string') {
+      message = JSON.stringify(message);
+    }
+    return crypto.createHmac('sha1', secret).update(message).digest('hex');
   },
 };

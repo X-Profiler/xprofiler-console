@@ -10,6 +10,7 @@
     "basic-auth": "^2.0.1",
     "egg": "^2.26.1",
     "egg-mysql": "^3.0.0",
+    "egg-redis": "^2.4.0",
     "egg-scripts": "^2.13.0",
     "egg-view-nunjucks": "^2.2.0",
     "kitx": "^2.1.0",

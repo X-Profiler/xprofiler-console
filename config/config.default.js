@@ -37,6 +37,7 @@ module.exports = appInfo => {
     },
   };
 
+  // mysql
   userConfig.mysql = {
     app: true,
     agent: false,
@@ -57,6 +58,26 @@ module.exports = appInfo => {
       },
     },
   };
+
+  // redis
+  userConfig.redis = {
+    client: {
+      sentinels: null,
+      port: 6379,
+      host: '',
+      password: '',
+      db: 0,
+    },
+  };
+
+  // xtransit manager
+  userConfig.xtransitManager = '';
+
+  userConfig.secure = {
+    secret: 'easy-monitor::xprofiler',
+  };
+
+  userConfig.httpTimeout = 15000;
 
   return {
     ...config,
