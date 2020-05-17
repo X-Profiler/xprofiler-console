@@ -27,8 +27,22 @@ class ManagerService extends Service {
     }
   }
 
+  // comman manager request
   getClients(appId) {
     return this.request('/xprofiler/clients', { appId }, {});
+  }
+
+  // exec commands
+  getAgentOsInfo(appId, agentId) {
+    return this.request('/xprofiler/agent_osinfo', { appId, agentId });
+  }
+
+  getAgentNodeProcesses(appId, agentId) {
+    return this.request('/xprofiler/agent_node_processes', { appId, agentId });
+  }
+
+  checkProcessStatus(appId, agentId, pid) {
+    return this.request('/xprofiler/check_process_status', { appId, agentId, pid });
   }
 }
 

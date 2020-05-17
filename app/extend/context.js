@@ -54,4 +54,26 @@ module.exports = {
     }
     return true;
   },
+
+  async handleXtransitResponse(func, ...args) {
+    const { service: { manager } } = this;
+    const result = await manager[func](...args);
+    if (!result) {
+      this.body = { ok: false, message: 'Inner server error' };
+      return false;
+    }
+
+    if (!result.ok) {
+      this.body = result;
+      return false;
+    }
+
+    const { stdout, stderr } = result.data;
+    if (stderr) {
+      this.body = { ok: false, message: stderr };
+      return false;
+    }
+
+    return stdout;
+  },
 };

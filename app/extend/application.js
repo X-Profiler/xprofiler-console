@@ -26,4 +26,8 @@ module.exports = {
     }
     return crypto.createHmac('sha1', secret).update(message).digest('hex');
   },
+
+  isNumber(num) {
+    return num !== true && num !== false && Boolean(num === 0 || (num && !isNaN(num)));
+  },
 };
