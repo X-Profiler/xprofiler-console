@@ -4,29 +4,64 @@ const Controller = require('egg').Controller;
 
 class ProcessController extends Controller {
   async getXprofilerProcesses() {
-    const { ctx } = this;
+    const { ctx, ctx: { service: { overview } } } = this;
     const { appId, agentId } = ctx.query;
 
-    // TODO
-    const list = [];
-
-    // get node processes
-    const nodes = [];
-    if (!list.length) {
-      const stdout = await ctx.handleXtransitResponse('getAgentNodeProcesses', appId, agentId);
-      if (stdout === false) {
-        return;
-      }
-
-      for (const line of stdout.split('\n')) {
-        const [pid, command] = line.split('\u0000');
+    const tasks = [];
+    tasks.push(overview.getLatestProcessData(appId, agentId));
+    tasks.push(ctx.handleXtransitResponse('getAgentNodeProcesses', appId, agentId));
+    let [logs, processes] = await Promise.all(tasks);
+    processes = processes.split('\n')
+      .map(process => {
+        const [pid, command] = process.split('\u0000');
         if (pid && command) {
-          nodes.push({ pid, command });
+          return ({ pid, command });
         }
+      })
+      .filter(process => process);
+
+
+    const data = { list: [], nodes: [] };
+
+    if (!logs) {
+      data.nodes = processes;
+    } else {
+      for (const [pid, log] of Object.entries(logs)) {
+        const process = processes.filter(process => Number(process.pid) === Number(pid))[0];
+        if (!process) {
+          continue;
+        }
+        const {
+          uptime,
+          cpu_60,
+          heap_used_percent,
+          gc_time_during_last_record,
+          rss,
+          active_handles,
+          active_timer_handles,
+          active_tcp_handles,
+          active_udp_handles,
+        } = log;
+
+        const proc = {
+          pid,
+          cmd: process.command,
+          startTime: Date.now() - uptime * 1000,
+          cpuUsage: cpu_60.toFixed(2),
+          heapUsage: heap_used_percent.toFixed(2),
+          gcUsage: (gc_time_during_last_record / (60 * 1000) * 100).toFixed(2),
+          rss,
+          uvHandles: active_handles,
+          timers: active_timer_handles,
+          tcpHandles: active_tcp_handles,
+          udpHandles: active_udp_handles,
+        };
+
+        data.list.push(proc);
       }
     }
 
-    ctx.body = { ok: true, data: { list, nodes } };
+    ctx.body = { ok: true, data };
   }
 
   async checkXprofilerStatus() {

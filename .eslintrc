@@ -1,6 +1,7 @@
 {
   "extends": "eslint-config-egg",
   "rules": {
-    "array-bracket-spacing": 0
+    "array-bracket-spacing": 0,
+    "array-callback-return": 0
   }
 }
