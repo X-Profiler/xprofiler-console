@@ -9,6 +9,12 @@ class MysqlService extends Service {
     return xprofiler_console.query(sql, params);
   }
 
+  logsQuery(sql, params) {
+    const { ctx: { app: { mysql } } } = this;
+    const xprofiler_logs = mysql.get('xprofiler_logs');
+    return xprofiler_logs.query(sql, params);
+  }
+
   /* table <user> */
   getUserByName(name) {
     const sql = 'SELECT * FROM user WHERE name = ?';
@@ -121,6 +127,15 @@ class MysqlService extends Service {
     const sql = 'DELETE FROM members WHERE app = ?';
     const params = [appId];
     return this.consoleQuery(sql, params);
+  }
+
+  /* process_${DD} */
+  getProcessData(table, appId, agentId, start, end) {
+    const sql = `SELECT * FROM ${table} WHERE app = ? AND agent = ? `
+      + 'AND log_time >= ? AND log_time < ? '
+      + 'ORDER BY log_time DESC';
+    const params = [appId, agentId, start, end];
+    return this.logsQuery(sql, params);
   }
 }
 

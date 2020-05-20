@@ -2,6 +2,7 @@
 
 const kitx = require('kitx');
 const crypto = require('crypto');
+const moment = require('moment');
 const { v4 } = require('uuid');
 
 module.exports = {
@@ -29,5 +30,38 @@ module.exports = {
 
   isNumber(num) {
     return num !== true && num !== false && Boolean(num === 0 || (num && !isNaN(num)));
+  },
+
+  formatSize(size, fixed = 2) {
+    let str = '';
+    size = +size;
+
+    if (size / 1024 < 1) {
+      str = `${Number((size).toFixed(fixed))}Bytes`;
+    } else if (size / 1024 / 1024 < 1) {
+      str = `${Number((size / 1024).toFixed(fixed))}KB`;
+    } else if (size / 1024 / 1024 / 1024 < 1) {
+      str = `${Number((size / 1024 / 1024).toFixed(fixed))}MB`;
+    } else {
+      str = `${(Number(size / 1024 / 1024 / 1024).toFixed(fixed))}GB`;
+    }
+    return str;
+  },
+
+  getPeriods(period, formatter = 'YYYY-MM-DD HH:mm:ss') {
+    const end = Date.now();
+    const start = end - period * 60 * 1000;
+    const list = [];
+    let tmp = start;
+    while (moment(tmp).startOf('day') < end) {
+      list.push({
+        date: moment(tmp).format('DD'),
+        start: moment(tmp).format(formatter),
+        end: moment(end).format('YYYYMMDD') === moment(tmp).format('YYYYMMDD') ?
+          moment(end).format(formatter) : moment(tmp).endOf('day').format(formatter),
+      });
+      tmp = moment(tmp).startOf('day').add(1, 'days');
+    }
+    return list;
   },
 };

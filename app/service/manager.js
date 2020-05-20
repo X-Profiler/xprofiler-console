@@ -27,6 +27,25 @@ class ManagerService extends Service {
     }
   }
 
+  handleXtransitResponse(result) {
+    const { ctx } = this;
+    if (!result.ok) {
+      ctx.logger.error(result.message);
+      return;
+    }
+    const { stdout, stderr } = result.data;
+    if (stderr) {
+      ctx.logger.error(stderr);
+      return;
+    }
+    try {
+      return JSON.parse(stdout.trim());
+    } catch (err) {
+      ctx.logger.error(err);
+      return;
+    }
+  }
+
   // comman manager request
   getClients(appId) {
     return this.request('/xprofiler/clients', { appId }, {});
@@ -43,6 +62,10 @@ class ManagerService extends Service {
 
   checkProcessStatus(appId, agentId, pid) {
     return this.request('/xprofiler/check_process_status', { appId, agentId, pid });
+  }
+
+  checkProcessessAvlie(appId, agentId, pids) {
+    return this.request('/xprofiler/check_processes_alive', { appId, agentId, pids });
   }
 }
 

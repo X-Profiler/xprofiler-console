@@ -27,7 +27,8 @@ module.exports = app => {
   router.get('/xapi/app', userRequired, appMemberRequired, 'app.getAppInfo');
 
   // overview
-  router.get('/xapi/overview_metrics', userRequired, appMemberRequired, 'overview.getMetrics');
+  router.get('/xapi/overview_metrics', userRequired, appMemberRequired, 'overview.getOverviewMetrics');
+  router.get('/xapi/main_metrics', userRequired, appMemberRequired, 'overview.getMainMetrics');
 
   // instance
   router.get('/xapi/agents', userRequired, appMemberRequired, 'instance.getAgents');
