@@ -129,12 +129,16 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
-  /* process_${DD} */
-  getProcessData(table, appId, agentId, start, end) {
+  /* process_${DD} or osinfo_${DD} */
+  getXnppLogs(table, appId, agentId, start, end, pid) {
     const sql = `SELECT * FROM ${table} WHERE app = ? AND agent = ? `
       + 'AND log_time >= ? AND log_time < ? '
+      + (pid ? 'AND pid = ?' : '')
       + 'ORDER BY log_time DESC';
     const params = [appId, agentId, start, end];
+    if (pid) {
+      params.push(pid);
+    }
     return this.logsQuery(sql, params);
   }
 }

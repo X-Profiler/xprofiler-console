@@ -38,6 +38,7 @@ module.exports = app => {
   router.get('/xapi/node_processes', userRequired, appMemberRequired, checkParams(['agentId']), 'process.getNodeProcesses');
   router.get('/xapi/xprofiler_processes', userRequired, appMemberRequired, checkParams(['agentId']), 'process.getXprofilerProcesses');
   router.get('/xapi/xprofiler_status', userRequired, appMemberRequired, checkParams(['agentId', 'pid']), 'process.checkXprofilerStatus');
+  router.get('/xapi/process_trend', userRequired, appMemberRequired, checkParams(['agentId', 'pid', 'trendType', 'duration']), 'process.getProcessTrend');
 
   // team
   router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');

@@ -94,6 +94,17 @@ class ProcessController extends Controller {
 
     ctx.body = { ok: true, data };
   }
+
+  async getProcessTrend() {
+    const { ctx, ctx: { service: { process } } } = this;
+    const { appId, agentId, pid, trendType, duration } = ctx.query;
+
+    const period = duration * 60;
+    const trends = await process.getDataByPeriodAndPid(appId, agentId, period, pid);
+    const data = process.handleTrends(trends, trendType, duration);
+
+    ctx.body = { ok: true, data };
+  }
 }
 
 module.exports = ProcessController;
