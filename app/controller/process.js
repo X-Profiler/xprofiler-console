@@ -78,6 +78,10 @@ class ProcessController extends Controller {
       }
     }
 
+    if (!data.list.length) {
+      data.nodes = processes;
+    }
+
     ctx.body = { ok: true, data };
   }
 

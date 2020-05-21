@@ -84,6 +84,7 @@ class OverviewService extends Service {
       }
       log.max_disk = maxDisk;
       log.max_disk_usage = maxDiskUsage;
+      log.disks_json = disks;
     } catch (err) {
       ctx.logger.error(`setMaxDisk parse disks failed: ${err}, raw: ${log.disks}`);
     }
