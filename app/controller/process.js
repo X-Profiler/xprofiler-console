@@ -3,6 +3,23 @@
 const Controller = require('egg').Controller;
 
 class ProcessController extends Controller {
+  async getNodeProcesses() {
+    const { ctx } = this;
+    const { appId, agentId } = ctx.query;
+
+    const processes = await ctx.handleXtransitResponse('getAgentNodeProcesses', appId, agentId);
+    const list = processes.split('\n')
+      .map(process => {
+        const [pid, command] = process.split('\u0000');
+        if (pid && command) {
+          return ({ pid, command });
+        }
+      })
+      .filter(process => process);
+
+    ctx.body = { ok: true, data: { list } };
+  }
+
   async getXprofilerProcesses() {
     const { ctx, ctx: { service: { overview } } } = this;
     const { appId, agentId } = ctx.query;

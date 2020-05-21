@@ -35,6 +35,7 @@ module.exports = app => {
   router.get('/xapi/agent', userRequired, appMemberRequired, checkParams(['agentId']), 'instance.checkAgent');
 
   // instance/process
+  router.get('/xapi/node_processes', userRequired, appMemberRequired, checkParams(['agentId']), 'process.getNodeProcesses');
   router.get('/xapi/xprofiler_processes', userRequired, appMemberRequired, checkParams(['agentId']), 'process.getXprofilerProcesses');
   router.get('/xapi/xprofiler_status', userRequired, appMemberRequired, checkParams(['agentId', 'pid']), 'process.checkXprofilerStatus');
 
