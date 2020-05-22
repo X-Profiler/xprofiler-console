@@ -55,9 +55,9 @@ class ProcessService extends Service {
         }];
         break;
       case 'timerTrend':
-        keys = [
-          { key: 'active_timer_handles', label: 'active_timers' },
-        ];
+        keys = [{
+          key: 'active_timer_handles', label: 'active_timers',
+        }];
         break;
       case 'tcpTrend':
         keys = ['active_tcp_handles'];

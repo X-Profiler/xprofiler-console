@@ -73,7 +73,94 @@ class SystemService extends Service {
       logMap[formatTime] = Object.assign(logMap[formatTime], this.mergeSystemLog(log));
     }
 
-    return Object.entries(logMap).map(([, log]) => log);
+    const list = Object.entries(logMap).map(([, log]) => log);
+    list.forEach(log => {
+      log.used_memory = log.total_memory - log.free_memory;
+      try {
+        log.disks_json = JSON.parse(log.disks);
+      } catch (err) {
+        err;
+        log.disks_json = {};
+      }
+    });
+    return list;
+  }
+
+  handleTrends(trends, type, duration) {
+    let latestLog = trends[0];
+    if (latestLog && (!latestLog.total_memory || !latestLog.total_gc_times)) {
+      latestLog = trends[1];
+    }
+    if (!latestLog) {
+      return { list: [] };
+    }
+
+    const { ctx: { service: { metric } } } = this;
+    let keys = [];
+    let extra;
+    let yAxis;
+    switch (type) {
+      case 'osCpuTrend':
+        keys = [{
+          key: 'used_cpu', label: 'os_cpu',
+          handle: value => Number((value * 100).toFixed(2)),
+        }];
+        extra = `${latestLog.cpu_count} Cores`;
+        break;
+      case 'osMemoryTrend': {
+        let totalMemory = 0;
+        totalMemory = latestLog.total_memory;
+        extra = `${Math.round(totalMemory / 1024 / 1024 / 1024)} GB`;
+        keys = [{
+          key: 'used_memory',
+          label: 'os_memory',
+          handle: value => (totalMemory ? Number((value / totalMemory * 100).toFixed(2)) : 0),
+        }];
+      }
+        break;
+      case 'loadTrend':
+        keys = [
+          { key: 'load1', handle: value => Number(value.toFixed(2)) },
+          { key: 'load5', handle: value => Number(value.toFixed(2)) },
+          { key: 'load15', handle: value => Number(value.toFixed(2)) },
+        ];
+        break;
+      case 'nodeCountTrend':
+        keys = ['node_count'];
+        break;
+      case 'osGcTrend':
+        keys = [
+          { key: 'scavange_duration_last_record', label: 'scavenge_avg' },
+          { key: 'marksweep_duration_last_record', label: 'marksweep_avg' },
+        ];
+        break;
+      case 'diskUsageTrend': {
+        const disks = latestLog.disks_json;
+        yAxis = Object.keys(disks);
+        keys = ['disks_json'];
+      }
+        break;
+      case 'qpsTrend':
+        keys = [{
+          key: ['http_response_sent'], label: 'qps',
+          handle: value => Number((value / 60).toFixed(2)),
+        }];
+        break;
+      case 'httpResponseTrend':
+        keys = [{
+          key: ['http_rt'], label: 'response_time',
+          handle: value => Number(value).toFixed(2),
+        }];
+        break;
+      default:
+        break;
+    }
+
+    let list = metric.handleTrends(trends, keys, duration);
+    if (type === 'diskUsageTrend') {
+      list = list.map(({ disks_json, time }) => ({ ...disks_json, time }));
+    }
+    return { list, extra, yAxis };
   }
 }
 

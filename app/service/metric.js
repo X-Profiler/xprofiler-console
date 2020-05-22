@@ -56,10 +56,11 @@ class MetricService extends Service {
             data[keyObj] = trend[keyObj];
           } else {
             const { key, label, handle } = keyObj;
+            const showLabel = label || key;
             if (typeof handle === 'function') {
-              data[label] = handle(trend[key]);
+              data[showLabel] = handle(trend[key]);
             } else {
-              data[label] = trend[key];
+              data[showLabel] = trend[key];
             }
           }
         });

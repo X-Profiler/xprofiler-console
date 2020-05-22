@@ -48,6 +48,17 @@ class SystemController extends Controller {
 
     ctx.body = { ok: true, data };
   }
+
+  async getSystemTrend() {
+    const { ctx, ctx: { service: { system } } } = this;
+    const { appId, agentId, trendType, duration } = ctx.query;
+
+    const period = duration * 60;
+    const trends = await system.getDataByPeriod(appId, agentId, period);
+    const data = system.handleTrends(trends, trendType, duration);
+
+    ctx.body = { ok: true, data };
+  }
 }
 
 module.exports = SystemController;

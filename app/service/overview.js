@@ -60,34 +60,27 @@ class OverviewService extends Service {
   }
 
   setMemoryUsage(log) {
-    const { total_memory, free_memory } = log;
-    log.used_memory = total_memory - free_memory;
-    log.used_memory_percent = log.used_memory / total_memory;
+    const { total_memory, used_memory } = log;
+    log.used_memory_percent = used_memory / total_memory;
   }
 
   setMaxDisk(log) {
-    const { ctx } = this;
-    try {
-      const disks = JSON.parse(log.disks);
-      let maxDisk;
-      let maxDiskUsage = 0;
-      for (const [disk, usage] of Object.entries(disks)) {
-        if (!maxDisk) {
-          maxDisk = disk;
-          maxDiskUsage = usage;
-          continue;
-        }
-        if (usage > maxDiskUsage) {
-          maxDisk = disk;
-          maxDiskUsage = usage;
-        }
+    const disks = log.disks_json;
+    let maxDisk;
+    let maxDiskUsage = 0;
+    for (const [disk, usage] of Object.entries(disks)) {
+      if (!maxDisk) {
+        maxDisk = disk;
+        maxDiskUsage = usage;
+        continue;
       }
-      log.max_disk = maxDisk;
-      log.max_disk_usage = maxDiskUsage;
-      log.disks_json = disks;
-    } catch (err) {
-      ctx.logger.error(`setMaxDisk parse disks failed: ${err}, raw: ${log.disks}`);
+      if (usage > maxDiskUsage) {
+        maxDisk = disk;
+        maxDiskUsage = usage;
+      }
     }
+    log.max_disk = maxDisk;
+    log.max_disk_usage = maxDiskUsage;
   }
 
   async getLatestSystemData(appId, agentId) {

@@ -42,6 +42,7 @@ module.exports = app => {
 
   // instance/system
   router.get('/xapi/system_overview', userRequired, appMemberRequired, checkParams(['agentId']), 'system.getOverview');
+  router.get('/xapi/system_trend', userRequired, appMemberRequired, checkParams(['agentId', 'trendType', 'duration']), 'system.getSystemTrend');
 
   // team
   router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');
