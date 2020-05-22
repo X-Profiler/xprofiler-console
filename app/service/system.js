@@ -3,59 +3,74 @@
 const moment = require('moment');
 const Service = require('egg').Service;
 
-const systemLogKey = [
-  'id',
-  'app',
-  'agent',
-  'uptime',
-  'log_time',
-  'version',
-  'used_cpu',
-  'cpu_count',
-  'total_memory',
-  'free_memory',
-  'load1',
-  'load5',
-  'load15',
-  'disks',
-  'node_count',
+const systemLogParts = [
+  {
+    keys: [
+      'position',
+      'id',
+      'app',
+      'agent',
+      'uptime',
+      'log_time',
+      'version',
+      'used_cpu',
+      'cpu_count',
+      'total_memory',
+      'free_memory',
+      'load1',
+      'load5',
+      'load15',
+      'disks',
+      'node_count',
+    ],
+    position: 0,
+    flag: 'system_log',
+  },
+  {
+    keys: [
+      'position',
+      'total_gc_times',
+      'total_gc_duration',
+      'total_scavange_duration',
+      'total_marksweep_duration',
+      'total_incremental_marking_duration',
+      'gc_time_during_last_record',
+      'scavange_duration_last_record',
+      'marksweep_duration_last_record',
+      'incremental_marking_duration_last_record',
+      'response_codes',
+      'live_http_request',
+      'http_response_close',
+      'http_response_sent',
+      'http_request_timeout',
+      'http_patch_timeout',
+      'http_rt',
+    ],
+    position: 1,
+    flag: 'xprofiler_log',
+  },
 ];
 
-const mergeLogKey = [
-  'total_gc_times',
-  'total_gc_duration',
-  'total_scavange_duration',
-  'total_marksweep_duration',
-  'total_incremental_marking_duration',
-  'gc_time_during_last_record',
-  'scavange_duration_last_record',
-  'marksweep_duration_last_record',
-  'incremental_marking_duration_last_record',
-  'response_codes',
-  'live_http_request',
-  'http_response_close',
-  'http_response_sent',
-  'http_request_timeout',
-  'http_patch_timeout',
-  'http_rt',
-];
+const checkFlags = systemLogParts.map(part => part.flag);
 
 class SystemService extends Service {
-  getSystemLog(log, keys, checks) {
-    const map = {};
+  getSystemLog(log, keys, position, flag) {
+    const map = { [flag]: true };
     for (const key of keys) {
       map[key] = log[key];
     }
-    if (checks.every(check => map[check])) {
+    if (map.position === position) {
       return map;
     }
     return {};
   }
 
   mergeSystemLog(log) {
-    const log1 = this.getSystemLog(log, systemLogKey, ['total_memory']);
-    const log2 = this.getSystemLog(log, mergeLogKey, ['total_gc_times']);
-    return Object.assign({}, log1, log2);
+    const logs = [];
+    for (const { keys, position, flag } of systemLogParts) {
+      logs.push(this.getSystemLog(log, keys, position, flag));
+    }
+    return Object.assign({}, ...logs);
   }
 
   async getDataByPeriod(appId, agentId, peroid) {
@@ -73,7 +88,10 @@ class SystemService extends Service {
       logMap[formatTime] = Object.assign(logMap[formatTime], this.mergeSystemLog(log));
     }
 
-    const list = Object.entries(logMap).map(([, log]) => log);
+    const list = Object.entries(logMap)
+      .map(([, log]) => log)
+      .filter(log => checkFlags.every(flag => log[flag]));
+
     list.forEach(log => {
       log.used_memory = log.total_memory - log.free_memory;
       try {

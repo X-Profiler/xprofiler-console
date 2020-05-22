@@ -14,15 +14,18 @@ class ProcessService extends Service {
   }
 
   handleTrends(trends, type, duration) {
+    const latestLog = trends[0];
+    if (!latestLog) {
+      return { list: [] };
+    }
+
     const { ctx: { service: { metric } } } = this;
     let keys = [];
     let limit = 0;
     switch (type) {
       case 'heapTrend':
         keys = ['heap_total', 'heap_used', 'rss'];
-        if (trends.length) {
-          limit = trends[0].heap_limit;
-        }
+        limit = latestLog.heap_limit;
         break;
       case 'cpuTrend':
         keys = ['cpu_now', 'cpu_15', 'cpu_30', 'cpu_60'];
