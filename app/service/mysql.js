@@ -98,6 +98,13 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  /* table <files> */
+  getFiles(appId, type) {
+    const sql = 'SELECT * FROM files WHERE app = ? AND type = ?';
+    const params = [appId, type];
+    return this.consoleQuery(sql, params);
+  }
+
   /* table <members> */
   getTeamMembersByAppId(appId) {
     const sql = 'SELECT * FROM members WHERE app = ?';

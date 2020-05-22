@@ -44,6 +44,9 @@ module.exports = app => {
   router.get('/xapi/system_overview', userRequired, appMemberRequired, checkParams(['agentId']), 'system.getOverview');
   router.get('/xapi/system_trend', userRequired, appMemberRequired, checkParams(['agentId', 'trendType', 'duration']), 'system.getSystemTrend');
 
+  // file
+  router.get('/xapi/files', userRequired, appMemberRequired, checkParams(['filterType', 'currentPage', 'pageSize']), 'file.getFiles');
+
   // team
   router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');
   router.get('/xapi/team_members', userRequired, appMemberRequired, 'team.getMembers');
