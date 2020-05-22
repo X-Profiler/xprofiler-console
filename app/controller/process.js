@@ -109,6 +109,15 @@ class ProcessController extends Controller {
 
     ctx.body = { ok: true, data };
   }
+
+  async takeAction() {
+    const { ctx } = this;
+    const { appId, agentId, pid, action } = ctx.request.body;
+
+    console.log(appId, agentId, pid, action);
+
+    ctx.body = { ok: true };
+  }
 }
 
 module.exports = ProcessController;
