@@ -67,6 +67,10 @@ class ManagerService extends Service {
   checkProcessessAvlie(appId, agentId, pids) {
     return this.request('/xprofiler/check_processes_alive', { appId, agentId, pids });
   }
+
+  takeAction(appId, agentId, pid, command, options) {
+    return this.request('/xprofiler/take_action', { appId, agentId, pid, command, options });
+  }
 }
 
 module.exports = ManagerService;

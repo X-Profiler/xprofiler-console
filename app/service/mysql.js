@@ -100,8 +100,22 @@ class MysqlService extends Service {
 
   /* table <files> */
   getFiles(appId, type) {
-    const sql = 'SELECT * FROM files WHERE app = ? AND type = ?';
-    const params = [appId, type];
+    let sql = '';
+    let params = [];
+    if (type === 'all') {
+      sql = 'SELECT * FROM files WHERE app = ?';
+      params = [appId];
+    } else {
+      sql = 'SELECT * FROM files WHERE app = ? AND type = ?';
+      params = [appId, type];
+    }
+    return this.consoleQuery(sql, params);
+  }
+
+  addFile(appId, agentId, type, file, user) {
+    const sql = 'INSERT INTO files (app, agent, type, file, user) '
+      + 'VALUES (?, ?, ?, ?, ?)';
+    const params = [appId, agentId, type, file, user];
     return this.consoleQuery(sql, params);
   }
 

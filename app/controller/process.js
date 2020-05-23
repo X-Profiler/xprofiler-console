@@ -8,6 +8,10 @@ class ProcessController extends Controller {
     const { appId, agentId } = ctx.query;
 
     const processes = await ctx.handleXtransitResponse('getAgentNodeProcesses', appId, agentId);
+    if (!processes) {
+      return;
+    }
+
     const list = processes.split('\n')
       .map(process => {
         const [pid, command] = process.split('\u0000');
@@ -111,12 +115,47 @@ class ProcessController extends Controller {
   }
 
   async takeAction() {
-    const { ctx } = this;
+    const { ctx, ctx: { app: { config: { profilingTime } }, service: { mysql } } } = this;
     const { appId, agentId, pid, action } = ctx.request.body;
 
-    console.log(appId, agentId, pid, action);
+    let command = '';
+    const options = {};
+    switch (action) {
+      case 'cpuprofile':
+        command = 'start_cpu_profiling';
+        options.profiling_time = profilingTime[command];
+        break;
+      case 'heapprofile':
+        command = 'start_heap_profiling';
+        options.profiling_time = profilingTime[command];
+        break;
+      case 'gcprofile':
+        command = 'start_gc_profiling';
+        options.profiling_time = profilingTime[command];
+        break;
+      case 'heapsnapshot':
+        command = 'heapdump';
+        break;
+      case 'diag':
+        command = 'diag_report';
+        break;
+      default:
+        break;
+    }
 
-    ctx.body = { ok: true };
+    if (!command) {
+      return (ctx.body = { ok: false, message: `不支持的操作: ${action}` });
+    }
+
+    const result = await ctx.handleXtransitResponse('takeAction', appId, agentId, pid, command, options);
+    if (!result) {
+      return;
+    }
+    const { filepath: file } = JSON.parse(result);
+    const { userId } = ctx.user;
+    await mysql.addFile(appId, agentId, action, file, userId);
+
+    ctx.body = { ok: true, data: { file } };
   }
 }
 

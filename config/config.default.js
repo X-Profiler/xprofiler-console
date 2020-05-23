@@ -29,13 +29,25 @@ module.exports = appInfo => {
     '/favicon.ico': fs.readFileSync(path.join(__dirname, '../app/public/favicon.ico')),
   };
 
-  const userConfig = {};
-
-  userConfig.view = {
+  config.view = {
     mapping: {
       '.html': 'nunjucks',
     },
   };
+
+  config.secure = {
+    secret: 'easy-monitor::xprofiler',
+  };
+
+  config.httpTimeout = 15000;
+
+  config.profilingTime = {
+    start_cpu_profiling: 5 * 60 * 1000,
+    start_heap_profiling: 5 * 60 * 1000,
+    start_gc_profiling: 5 * 60 * 1000,
+  };
+
+  const userConfig = {};
 
   // mysql
   userConfig.mysql = {
@@ -72,12 +84,6 @@ module.exports = appInfo => {
 
   // xtransit manager
   userConfig.xtransitManager = '';
-
-  userConfig.secure = {
-    secret: 'easy-monitor::xprofiler',
-  };
-
-  userConfig.httpTimeout = 15000;
 
   return {
     ...config,
