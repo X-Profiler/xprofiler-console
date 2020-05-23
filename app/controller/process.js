@@ -8,7 +8,7 @@ class ProcessController extends Controller {
     const { appId, agentId } = ctx.query;
 
     const processes = await ctx.handleXtransitResponse('getAgentNodeProcesses', appId, agentId);
-    if (!processes) {
+    if (processes === false) {
       return;
     }
 
@@ -32,6 +32,10 @@ class ProcessController extends Controller {
     tasks.push(overview.getLatestProcessData(appId, agentId));
     tasks.push(ctx.handleXtransitResponse('getAgentNodeProcesses', appId, agentId));
     let [logs, processes] = await Promise.all(tasks);
+    if (processes === false) {
+      return;
+    }
+
     processes = processes.split('\n')
       .map(process => {
         const [pid, command] = process.split('\u0000');
@@ -148,7 +152,7 @@ class ProcessController extends Controller {
     }
 
     const result = await ctx.handleXtransitResponse('takeAction', appId, agentId, pid, command, options);
-    if (!result) {
+    if (result === false) {
       return;
     }
     const { filepath: file } = JSON.parse(result);

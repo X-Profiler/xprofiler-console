@@ -10,6 +10,7 @@ module.exports = app => {
     appInvitationRequired,
     appMemberRequired,
     appOwnerRequired,
+    fileAccessibleRequired,
   } = app.middlewares.auth({}, app);
   const {
     checkParams,
@@ -47,6 +48,7 @@ module.exports = app => {
 
   // file
   router.get('/xapi/files', userRequired, appMemberRequired, checkParams(['filterType', 'currentPage', 'pageSize']), 'file.getFiles');
+  router.post('/xapi/file_status', userRequired, fileAccessibleRequired, checkParams(['files']), 'file.checkFileStatus');
 
   // team
   router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');

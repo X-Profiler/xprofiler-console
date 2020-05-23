@@ -47,6 +47,29 @@ module.exports = appInfo => {
     start_gc_profiling: 5 * 60 * 1000,
   };
 
+  config.actionTime = {
+    cpuprofile: {
+      profilingTime: config.profilingTime.start_cpu_profiling,
+      expired: config.profilingTime.start_cpu_profiling + 50 * 1000,
+    },
+    heapprofile: {
+      profilingTime: config.profilingTime.start_heap_profiling,
+      expired: config.profilingTime.start_heap_profiling + 50 * 1000,
+    },
+    gcprofile: {
+      profilingTime: config.profilingTime.start_gc_profiling,
+      expired: config.profilingTime.start_gc_profiling + 50 * 1000,
+    },
+    heapsnapshot: {
+      profilingTime: 10 * 1000,
+      expired: 30 * 1000,
+    },
+    diag: {
+      profilingTime: 5 * 1000,
+      expired: 30 * 1000,
+    },
+  };
+
   const userConfig = {};
 
   // mysql

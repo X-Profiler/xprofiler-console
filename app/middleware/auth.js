@@ -1,5 +1,7 @@
 'use strict';
 
+const pMap = require('p-map');
+
 module.exports = () => {
   return {
     // check user login
@@ -62,6 +64,58 @@ module.exports = () => {
         return await next();
       }
       ctx.authFailed(403, '您没有此页面的访问权限');
+    },
+
+    // check the current user can be access to the file(s)
+    async fileAccessibleRequired(ctx, next) {
+      const { service: { mysql } } = ctx;
+      if (!ctx.checkPossibleParams(['files']) && !ctx.checkPossibleParams(['fileId', 'fileType'])) {
+        return;
+      }
+
+      const query = ctx.query;
+      const post = ctx.request.body;
+      const files = post.files;
+      const fileId = query.fileId || post.fileId;
+      const fileType = query.fileType || post.fileType;
+
+      let checks;
+      if (Array.isArray(files)) {
+        checks = files;
+      } else {
+        checks = [{ fileId, fileType }];
+      }
+
+      const filesInfo = await pMap(checks, async ({ fileId, fileType }) => {
+        if (fileType !== 'core') {
+          return await mysql.getFileById(fileId);
+        }
+      }, { concurrency: 2 });
+
+      if (filesInfo.some(file => !file)) {
+        return ctx.authFailed(403, '您没有这些文件的访问权限');
+      }
+
+      const { userId } = ctx.user;
+      ctx.file = {};
+      const appMemberAuthList = await pMap(filesInfo, async file => {
+        const { app: appId } = file;
+        const tasks = [];
+        tasks.push(mysql.checkAppOwnerByUserId(appId, userId));
+        tasks.push(mysql.checkAppMemberByUserId(appId, userId, 2));
+        const [owner, member] = await Promise.all(tasks);
+        if (owner || member) {
+          ctx.file[file.id] = file;
+          return true;
+        }
+        return false;
+      }, { concurrency: 2 });
+
+      if (appMemberAuthList.some(auth => !auth)) {
+        return ctx.authFailed(403, '您没有这些文件的访问权限');
+      }
+
+      return await next();
     },
   };
 };

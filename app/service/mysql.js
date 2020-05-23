@@ -112,10 +112,22 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  getFileById(fileId) {
+    const sql = 'SELECT * FROM files WHERE id = ?';
+    const params = [fileId];
+    return this.consoleQuery(sql, params).then(data => data[0]);
+  }
+
   addFile(appId, agentId, type, file, user) {
     const sql = 'INSERT INTO files (app, agent, type, file, user) '
       + 'VALUES (?, ?, ?, ?, ?)';
     const params = [appId, agentId, type, file, user];
+    return this.consoleQuery(sql, params);
+  }
+
+  updateFileStatusById(fileId, status, token = '') {
+    const sql = 'UPDATE files SET status = ?, token = ? WHERE id = ?';
+    const params = [status, token, fileId];
     return this.consoleQuery(sql, params);
   }
 

@@ -41,6 +41,9 @@ class OverviewService extends Service {
 
     // check process is alive
     const avlivePids = manager.handleXtransitResponse(await manager.checkProcessessAvlie(appId, agentId, pids));
+    if (!avlivePids) {
+      return;
+    }
     list = list.filter(item => avlivePids[item.pid]);
     const latestPidMap = {};
     list.forEach(item => {
