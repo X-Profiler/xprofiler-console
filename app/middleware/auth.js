@@ -69,8 +69,8 @@ module.exports = () => {
     // check the current user can be access to the file(s)
     async fileAccessibleRequired(ctx, next) {
       const { service: { mysql } } = ctx;
-      if (!ctx.checkPossibleParams(['files']) && !ctx.checkPossibleParams(['fileId', 'fileType'])) {
-        return;
+      if (!ctx.checkPossibleParams(['files'], false) && !ctx.checkPossibleParams(['fileId', 'fileType'], false)) {
+        return ctx.authFailed(400, '缺少参数');
       }
 
       const query = ctx.query;
@@ -88,12 +88,12 @@ module.exports = () => {
 
       const filesInfo = await pMap(checks, async ({ fileId, fileType }) => {
         if (fileType !== 'core') {
-          return await mysql.getFileById(fileId);
+          return await mysql.getFileByIdAndType(fileId, fileType);
         }
       }, { concurrency: 2 });
 
       if (filesInfo.some(file => !file)) {
-        return ctx.authFailed(403, '您没有这些文件的访问权限');
+        return ctx.authFailed(404, '文件不存在');
       }
 
       const { userId } = ctx.user;
@@ -112,7 +112,7 @@ module.exports = () => {
       }, { concurrency: 2 });
 
       if (appMemberAuthList.some(auth => !auth)) {
-        return ctx.authFailed(403, '您没有这些文件的访问权限');
+        return ctx.authFailed(403, '您没有文件的访问权限');
       }
 
       return await next();

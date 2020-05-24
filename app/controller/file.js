@@ -85,6 +85,15 @@ class FileController extends Controller {
 
     ctx.body = { ok: true, data: { list } };
   }
+
+  async deleteFile() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { fileId } = ctx.request.body;
+
+    await mysql.deleteFileById(fileId);
+
+    ctx.body = { ok: true };
+  }
 }
 
 module.exports = FileController;
