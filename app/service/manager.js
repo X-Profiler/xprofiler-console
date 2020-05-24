@@ -68,6 +68,10 @@ class ManagerService extends Service {
     return this.request('/xprofiler/check_processes_alive', { appId, agentId, pids });
   }
 
+  checkFileStatus(appId, agentId, filePath) {
+    return this.request('/xprofiler/check_file_status', { appId, agentId, filePath });
+  }
+
   takeAction(appId, agentId, pid, command, options) {
     return this.request('/xprofiler/take_action', { appId, agentId, pid, command, options });
   }

@@ -47,26 +47,30 @@ module.exports = appInfo => {
     start_gc_profiling: 5 * 60 * 1000,
   };
 
+  config.profilingTimeExtra = 15 * 1000;
+
+  config.profilingTimeExpired = 60 * 1000;
+
   config.actionTime = {
     cpuprofile: {
-      profilingTime: config.profilingTime.start_cpu_profiling,
-      expired: config.profilingTime.start_cpu_profiling + 50 * 1000,
+      profilingTime: config.profilingTime.start_cpu_profiling + config.profilingTimeExtra,
+      expired: config.profilingTime.start_cpu_profiling + config.profilingTimeExpired,
     },
     heapprofile: {
-      profilingTime: config.profilingTime.start_heap_profiling,
-      expired: config.profilingTime.start_heap_profiling + 50 * 1000,
+      profilingTime: config.profilingTime.start_heap_profiling + config.profilingTimeExtra,
+      expired: config.profilingTime.start_heap_profiling + config.profilingTimeExpired,
     },
     gcprofile: {
-      profilingTime: config.profilingTime.start_gc_profiling,
-      expired: config.profilingTime.start_gc_profiling + 50 * 1000,
+      profilingTime: config.profilingTime.start_gc_profiling + config.profilingTimeExtra,
+      expired: config.profilingTime.start_gc_profiling + config.profilingTimeExpired,
     },
     heapsnapshot: {
-      profilingTime: 10 * 1000,
-      expired: 30 * 1000,
+      profilingTime: config.profilingTimeExtra,
+      expired: config.profilingTimeExpired,
     },
     diag: {
-      profilingTime: 5 * 1000,
-      expired: 30 * 1000,
+      profilingTime: config.profilingTimeExtra,
+      expired: config.profilingTimeExpired,
     },
   };
 

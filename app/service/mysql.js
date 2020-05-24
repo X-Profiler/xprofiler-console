@@ -109,6 +109,7 @@ class MysqlService extends Service {
       sql = 'SELECT * FROM files WHERE app = ? AND type = ?';
       params = [appId, type];
     }
+    sql += ' ORDER BY gm_create DESC';
     return this.consoleQuery(sql, params);
   }
 

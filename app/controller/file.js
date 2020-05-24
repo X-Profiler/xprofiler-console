@@ -51,22 +51,36 @@ class FileController extends Controller {
 
     const list = await pMap(files, async file => {
       const { fileId, fileType, index } = file;
-      const { status, gm_create } = ctx.file[fileId];
+      const { app, agent, status, file: filePath, gm_create } = ctx.file[fileId];
+      const result = { fileId, fileType, status, index };
+
+      // file created
       if (status !== 0) {
-        return { fileId, fileType, status, index };
+        return result;
       }
 
+      // check file creating status
       const { profilingTime, expired } = actionTime[fileType];
       const createdTime = new Date(gm_create).getTime();
       const now = Date.now();
-      if (now - createdTime < profilingTime) {
-        return { fileId, fileType, status: 0, index };
-      } else if (now - createdTime < expired) {
 
+      if (now - createdTime < profilingTime) {
+        result.status = 0;
+      } else if (now - createdTime < expired) {
+        const fileStatus = await ctx.handleXtransitResponse('checkFileStatus', app, agent, filePath);
+        const { exists } = JSON.parse(fileStatus);
+        if (exists) {
+          await mysql.updateFileStatusById(fileId, 1);
+          result.status = 1;
+        } else {
+          result.status = 0;
+        }
       } else {
         await mysql.updateFileStatusById(fileId, 1);
-        return { fileId, fileType, status: 1, index };
+        result.status = 1;
       }
+
+      return result;
     }, { concurrency: 2 });
 
     ctx.body = { ok: true, data: { list } };

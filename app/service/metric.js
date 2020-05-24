@@ -44,6 +44,18 @@ class MetricService extends Service {
       const time = moment(trend.log_time).format(formatter);
       trendMap[time] = trend;
     }
+    const validInterval = 60 * 1000;
+    for (let time = start; time < end; time += 60 * 1000) {
+      const timeKey = moment(time).format(formatter);
+      if (trendMap[timeKey]) {
+        continue;
+      }
+      const timeKeyBefore = moment(time - validInterval).format(formatter);
+      const timeKeyAfter = moment(time + validInterval).format(formatter);
+      if (trendMap[timeKeyBefore] && trendMap[timeKeyAfter]) {
+        trendMap[timeKey] = trendMap[timeKeyAfter];
+      }
+    }
 
     const results = [];
     for (let time = start; time < end; time += interval) {

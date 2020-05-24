@@ -51,5 +51,6 @@ CREATE TABLE `files`(
   `gm_modified` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `gm_create` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY (`app`, `agent`, `file`),
   INDEX (`id`, `app`, `type`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
