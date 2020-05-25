@@ -1,5 +1,7 @@
 'use strict';
 
+const zlib = require('zlib');
+const { PassThrough } = require('stream');
 const pMap = require('p-map');
 const moment = require('moment');
 const Controller = require('egg').Controller;
@@ -132,6 +134,33 @@ class FileController extends Controller {
       tasks.push(storage.deleteFile(fileName));
     }
     await Promise.all(tasks);
+
+    ctx.body = { ok: true };
+  }
+
+  async downloadFile() {
+    const { ctx, ctx: { app: { storage } } } = this;
+    const { fileId, fileType } = ctx.query;
+    const { storage: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
+
+    ctx.set('content-type', 'application/octet-stream');
+    ctx.set('content-disposition', `attachment;filename=${fileName}`);
+    const pass = new PassThrough();
+    const gunzip = zlib.createGunzip();
+    storage.downloadFile(fileName).pipe(gunzip).pipe(pass);
+    ctx.body = pass;
+  }
+
+  async favorFile() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { fileId, fileType, favor } = ctx.request.body;
+    const { favor: oldFavor } = ctx.file[ctx.createFileKey(fileId, fileType)];
+
+    if (Number(oldFavor) === Number(favor)) {
+      return (ctx.body = { ok: false, message: `已经${oldFavor ? '取消收藏' : '收藏'}` });
+    }
+
+    await mysql.updateFileFavor(fileId, favor);
 
     ctx.body = { ok: true };
   }

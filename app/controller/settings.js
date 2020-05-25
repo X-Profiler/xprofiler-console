@@ -31,7 +31,7 @@ class SettingsController extends Controller {
       if (!fileName) {
         return;
       }
-      await storage.deleteFile(fileName)
+      await storage.deleteFile(fileName);
     }, { concurrency: 2 });
 
     // delete app, app members, files

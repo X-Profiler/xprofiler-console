@@ -105,6 +105,9 @@ class MysqlService extends Service {
     if (type === 'all') {
       sql = 'SELECT * FROM files WHERE app = ?';
       params = [appId];
+    } else if (type === 'favor') {
+      sql = 'SELECT * FROM files WHERE app = ? AND favor = ?';
+      params = [appId, 1];
     } else {
       sql = 'SELECT * FROM files WHERE app = ? AND type = ?';
       params = [appId, type];
@@ -148,6 +151,12 @@ class MysqlService extends Service {
   deleteFiles(appId) {
     const sql = 'DELETE FROM files WHERE app = ?';
     const params = [appId];
+    return this.consoleQuery(sql, params);
+  }
+
+  updateFileFavor(fileId, favor) {
+    const sql = 'UPDATE files SET favor = ? WHERE id = ?';
+    const params = [favor, fileId];
     return this.consoleQuery(sql, params);
   }
 
