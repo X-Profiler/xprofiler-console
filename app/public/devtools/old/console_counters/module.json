@@ -1,0 +1,15 @@
+{
+  "extensions": [
+  ],
+  "dependencies": [
+    "common",
+    "ui",
+    "sdk"
+  ],
+  "scripts": [
+    "WarningErrorCounter.js"
+  ],
+  "resources": [
+    "errorWarningCounter.css"
+  ]
+}

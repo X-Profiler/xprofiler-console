@@ -1,0 +1,11 @@
+{
+  "modules" : [
+    { "name": "mobile_throttling", "type": "autostart" },
+
+    { "name": "layer_viewer" },
+    { "name": "timeline" },
+    { "name": "timeline_model" }
+  ],
+  "extends": "shell",
+  "has_html": true
+}
