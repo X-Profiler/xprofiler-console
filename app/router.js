@@ -54,6 +54,10 @@ module.exports = app => {
   router.post('/xapi/file_favor', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType', 'favor']), 'file.favorFile');
   router.delete('/xapi/file_deletion', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType']), 'file.deleteFile');
 
+  // devtools
+  router.get('/dashboard/devtools-new', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType', 'selectedTab']), 'devtools.newDevtools');
+  router.get('/dashboard/devtools-old', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType', 'selectedTab']), 'devtools.oldDevtools');
+
   // upload file
   router.post('/xapi/upload_from_xtransit', checkParams(['fileId', 'fileType', 'nonce', 'timestamp', 'signature']), 'upload.fromXtransit');
 
