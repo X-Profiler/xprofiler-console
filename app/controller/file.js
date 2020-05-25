@@ -128,7 +128,9 @@ class FileController extends Controller {
 
     const tasks = [];
     tasks.push(mysql.deleteFileById(fileId));
-    tasks.push(storage.deleteFile(fileName));
+    if (fileName) {
+      tasks.push(storage.deleteFile(fileName));
+    }
     await Promise.all(tasks);
 
     ctx.body = { ok: true };

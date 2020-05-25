@@ -140,8 +140,14 @@ class MysqlService extends Service {
   }
 
   deleteFileById(fileId) {
-    const sql = 'delete FROM files WHERE id = ?';
+    const sql = 'DELETE FROM files WHERE id = ?';
     const params = [fileId];
+    return this.consoleQuery(sql, params);
+  }
+
+  deleteFiles(appId) {
+    const sql = 'DELETE FROM files WHERE app = ?';
+    const params = [appId];
     return this.consoleQuery(sql, params);
   }
 

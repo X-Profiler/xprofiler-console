@@ -1,5 +1,6 @@
 'use strict';
 
+const pMap = require('p-map');
 const Controller = require('egg').Controller;
 
 class SettingsController extends Controller {
@@ -20,12 +21,24 @@ class SettingsController extends Controller {
   }
 
   async deleteApp() {
-    const { ctx, ctx: { service: { mysql } } } = this;
+    const { ctx, ctx: { app: { storage }, service: { mysql } } } = this;
     const { appId } = ctx.request.body;
 
+    // delete storage files
+    const files = await mysql.getFiles(appId, 'all');
+    const storages = files.map(file => file.storage);
+    await pMap(storages, async fileName => {
+      if (!fileName) {
+        return;
+      }
+      await storage.deleteFile(fileName)
+    }, { concurrency: 2 });
+
+    // delete app, app members, files
     const tasks = [];
     tasks.push(mysql.deleteAppByAppId(appId));
     tasks.push(mysql.deleteMembersByAppId(appId));
+    tasks.push(mysql.deleteFiles(appId));
     await Promise.all(tasks);
 
     ctx.body = { ok: true };
