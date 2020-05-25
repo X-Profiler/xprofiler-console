@@ -78,4 +78,8 @@ module.exports = {
 
     return stdout;
   },
+
+  createFileKey(fileId, fileType) {
+    return `${fileId}::${fileType}`;
+  },
 };

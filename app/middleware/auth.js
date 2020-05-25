@@ -105,7 +105,7 @@ module.exports = () => {
         tasks.push(mysql.checkAppMemberByUserId(appId, userId, 2));
         const [owner, member] = await Promise.all(tasks);
         if (owner || member) {
-          ctx.file[`${file.id}::${file.type}`] = file;
+          ctx.file[ctx.createFileKey(file.id, file.type)] = file;
           return true;
         }
         return false;

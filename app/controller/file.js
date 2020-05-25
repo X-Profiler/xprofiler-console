@@ -51,7 +51,7 @@ class FileController extends Controller {
 
     const list = await pMap(files, async file => {
       const { fileId, fileType, index } = file;
-      const { app, agent, status, file: filePath, gm_create } = ctx.file[`${fileId}::${fileType}`];
+      const { app, agent, status, file: filePath, gm_create } = ctx.file[ctx.createFileKey(fileId, fileType)];
       const result = { fileId, fileType, status, index };
 
       // file created
@@ -93,7 +93,7 @@ class FileController extends Controller {
   async transferFile() {
     const { ctx, ctx: { app, service: { mysql } } } = this;
     const { fileId, fileType } = ctx.request.body;
-    const { app: appId, agent: agentId, file: filePath } = ctx.file[`${fileId}::${fileType}`];
+    const { app: appId, agent: agentId, file: filePath } = ctx.file[ctx.createFileKey(fileId, fileType)];
 
     // create token
     const token = app.createAppSecret(fileId, fileType);
@@ -124,7 +124,7 @@ class FileController extends Controller {
   async deleteFile() {
     const { ctx, ctx: { app: { storage }, service: { mysql } } } = this;
     const { fileId, fileType } = ctx.request.body;
-    const { storage: fileName } = ctx.file[`${fileId}::${fileType}`];
+    const { storage: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
 
     const tasks = [];
     tasks.push(mysql.deleteFileById(fileId));
