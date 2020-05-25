@@ -52,6 +52,9 @@ module.exports = app => {
   router.post('/xapi/file_transfer', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType']), 'file.transferFile');
   router.delete('/xapi/file_deletion', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType']), 'file.deleteFile');
 
+  // upload file
+  router.post('/xapi/upload_from_xtransit', checkParams(['fileId', 'fileType', 'nonce', 'timestamp', 'signature']), 'upload.fromXtransit');
+
   // team
   router.put('/xapi/invitation', userRequired, appInvitationRequired, checkParams(['status']), 'team.updateInvitation');
   router.get('/xapi/team_members', userRequired, appMemberRequired, 'team.getMembers');

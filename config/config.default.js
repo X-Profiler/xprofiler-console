@@ -43,6 +43,21 @@ module.exports = appInfo => {
     },
   };
 
+  config.multipart = {
+    fileSize: '4096mb',
+    fileExtensions: [
+      '.cpuprofile',
+      '.heapprofile',
+      '.gcprofile',
+      '.heapsnapshot',
+      '.diag',
+      '.core',
+      '.node',
+      '.trend',
+    ],
+    mode: 'file',
+  };
+
   config.secure = {
     secret: 'easy-monitor::xprofiler',
   };

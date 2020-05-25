@@ -126,9 +126,16 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
 
-  updateFileStatusById(fileId, status, token = '') {
-    const sql = 'UPDATE files SET status = ?, token = ? WHERE id = ?';
-    const params = [status, token, fileId];
+  updateFileStatusById(fileId, status, token = '', storage) {
+    let sql = '';
+    let params = [];
+    if (storage) {
+      sql = 'UPDATE files SET status = ?, token = ?, storage = ? WHERE id = ?';
+      params = [status, token, storage, fileId];
+    } else {
+      sql = 'UPDATE files SET status = ?, token = ? WHERE id = ?';
+      params = [status, token, fileId];
+    }
     return this.consoleQuery(sql, params);
   }
 

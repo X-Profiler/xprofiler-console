@@ -14,3 +14,4 @@ typings/
 .nyc_output/
 *.local.js
 env
+profiler

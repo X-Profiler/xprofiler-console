@@ -25,4 +25,9 @@ module.exports = {
     enable: true,
     path: path.join(__dirname, '../lib/plugin/egg-xprofiler-auth'),
   },
+
+  xstorage: {
+    enable: true,
+    path: path.join(__dirname, '../lib/plugin/egg-xprofiler-storage'),
+  },
 };

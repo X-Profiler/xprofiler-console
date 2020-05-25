@@ -51,7 +51,7 @@ class FileController extends Controller {
 
     const list = await pMap(files, async file => {
       const { fileId, fileType, index } = file;
-      const { app, agent, status, file: filePath, gm_create } = ctx.file[fileId];
+      const { app, agent, status, file: filePath, gm_create } = ctx.file[`${fileId}::${fileType}`];
       const result = { fileId, fileType, status, index };
 
       // file created
@@ -93,7 +93,7 @@ class FileController extends Controller {
   async transferFile() {
     const { ctx, ctx: { app, service: { mysql } } } = this;
     const { fileId, fileType } = ctx.request.body;
-    const { app: appId, agent: agentId, file: filePath } = ctx.file[fileId];
+    const { app: appId, agent: agentId, file: filePath } = ctx.file[`${fileId}::${fileType}`];
 
     // create token
     const token = app.createAppSecret(fileId, fileType);
@@ -101,7 +101,7 @@ class FileController extends Controller {
 
     // notification
     const { xprofilerConsole: server } = app.config;
-    let transferResult = await ctx.handleXtransitResponse('transferFile', appId, agentId,
+    const transferResult = await ctx.handleXtransitResponse('transferFile', appId, agentId,
       fileId, fileType, filePath, server, token);
     if (transferResult === false) {
       await mysql.updateFileStatusById(fileId, 1);
@@ -109,7 +109,8 @@ class FileController extends Controller {
     }
 
     try {
-      transferResult = JSON.parse(transferResult);
+      const { storage } = JSON.parse(transferResult);
+      await mysql.updateFileStatusById(fileId, 3, '', storage);
     } catch (err) {
       ctx.logger.error(`parse transfer result failed: ${err}, raw: ${transferResult}`);
       ctx.body = { ok: false, message: '下发转储命令失败' };
@@ -117,7 +118,7 @@ class FileController extends Controller {
       return;
     }
 
-    ctx.body = { ok: true, data: transferResult };
+    ctx.body = { ok: true };
   }
 
   async deleteFile() {
