@@ -46,7 +46,7 @@ class FileController extends Controller {
   }
 
   async checkFileStatus() {
-    const { ctx, ctx: { app: { config: { actionTime } }, service: { mysql } } } = this;
+    const { ctx, ctx: { app: { config: { actionTime } }, service: { mysql, manager } } } = this;
     const { files } = ctx.request.body;
 
     const list = await pMap(files, async file => {
@@ -67,8 +67,12 @@ class FileController extends Controller {
       if (now - createdTime < profilingTime) {
         result.status = 0;
       } else if (now - createdTime < expired) {
-        const fileStatus = await ctx.handleXtransitResponse('checkFileStatus', app, agent, filePath);
-        const { exists } = JSON.parse(fileStatus);
+        const fileStatus = manager.handleXtransitResponse(await manager.checkFileStatus(app, agent, filePath));
+        if (!fileStatus) {
+          result.status = 0;
+          return;
+        }
+        const { exists } = fileStatus;
         if (exists) {
           await mysql.updateFileStatusById(fileId, 1);
           result.status = 1;
@@ -84,6 +88,36 @@ class FileController extends Controller {
     }, { concurrency: 2 });
 
     ctx.body = { ok: true, data: { list } };
+  }
+
+  async transferFile() {
+    const { ctx, ctx: { app, service: { mysql } } } = this;
+    const { fileId, fileType } = ctx.request.body;
+    const { app: appId, agent: agentId, file: filePath } = ctx.file[fileId];
+
+    // create token
+    const token = app.createAppSecret(fileId, fileType);
+    await mysql.updateFileStatusById(fileId, 2, token);
+
+    // notification
+    const { xprofilerConsole: server } = app.config;
+    let transferResult = await ctx.handleXtransitResponse('transferFile', appId, agentId,
+      fileId, fileType, filePath, server, token);
+    if (transferResult === false) {
+      await mysql.updateFileStatusById(fileId, 1);
+      return;
+    }
+
+    try {
+      transferResult = JSON.parse(transferResult);
+    } catch (err) {
+      ctx.logger.error(`parse transfer result failed: ${err}, raw: ${transferResult}`);
+      ctx.body = { ok: false, message: '下发转储命令失败' };
+      await mysql.updateFileStatusById(fileId, 1);
+      return;
+    }
+
+    ctx.body = { ok: true, data: transferResult };
   }
 
   async deleteFile() {

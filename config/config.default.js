@@ -74,6 +74,8 @@ module.exports = appInfo => {
     },
   };
 
+  config.uploadFileExpiredTime = 20 * 60 * 1000;
+
   const userConfig = {};
 
   // mysql
@@ -108,6 +110,9 @@ module.exports = appInfo => {
       db: 0,
     },
   };
+
+  // xtransit upload file
+  userConfig.xprofilerConsole = '';
 
   // xtransit manager
   userConfig.xtransitManager = '';

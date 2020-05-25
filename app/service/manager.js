@@ -75,6 +75,13 @@ class ManagerService extends Service {
   takeAction(appId, agentId, pid, command, options) {
     return this.request('/xprofiler/take_action', { appId, agentId, pid, command, options });
   }
+
+  transferFile(appId, agentId, fileId, fileType, filePath, server, token) {
+    const { ctx: { app: { config: { uploadFileExpiredTime: expiredTime } } } } = this;
+    const data = { appId, agentId, fileId, fileType, filePath, server, token };
+    data.expiredTime = expiredTime;
+    return this.request('/xprofiler/transfer_file', data);
+  }
 }
 
 module.exports = ManagerService;
