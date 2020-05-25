@@ -17,9 +17,9 @@ module.exports = appInfo => {
 
   config.keys = appInfo.name + '_1588763657594_4897';
 
-  config.middleware = [
-    'basicAuth',
-  ];
+  config.development = {
+    watchDirs: ['lib'],
+  };
 
   config.static = {
     gzip: true,
@@ -32,6 +32,14 @@ module.exports = appInfo => {
   config.view = {
     mapping: {
       '.html': 'nunjucks',
+    },
+  };
+
+  config.security = {
+    csrf: {
+      ignore: [
+        '/xapi/upload_from_xtransit',
+      ],
     },
   };
 
@@ -75,6 +83,8 @@ module.exports = appInfo => {
   };
 
   config.uploadFileExpiredTime = 20 * 60 * 1000;
+
+  config.uploadNoncePrefix = 'XTRANSIT_UPLOAD_NONCE::';
 
   const userConfig = {};
 
