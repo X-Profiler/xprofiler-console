@@ -102,8 +102,8 @@ class UploadController extends Controller {
         storages: [coreFileStorage, nodeFileStorage],
         paths,
       } = params;
-      await mysql.addCoredump(appId, 'upload', coreFileName, nodeFileName, userId, 3, coreFileStorage, nodeFileStorage);
-      await paths.map(unlink);
+      await mysql.addCoredump(appId, 'upload', coreFileName, nodeFileName, userId, 3, coreFileStorage, 3, nodeFileStorage);
+      await paths.map(path => unlink(path));
 
       ctx.body = { ok: true, data: { file: coreFileName } };
       return;

@@ -161,10 +161,23 @@ class MysqlService extends Service {
   }
 
   /* table <coredumps> */
-  addCoredump(appId, agentId, file, node, user, status = 0, fileStorage = '', nodeStorage = '') {
-    const sql = 'INSERT INTO coredumps (app, agent, file, node, user, status, file_storage, node_storage) '
-      + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [appId, agentId, file, node, user, status, fileStorage, nodeStorage];
+  getCoredumps(appId, type) {
+    let sql;
+    let params = [];
+    if (type === 'favor') {
+      sql = 'SELECT * FROM coredumps WHERE app = ? AND favor = ?';
+      params = [appId, 1];
+    } else {
+      sql = 'SELECT * FROM coredumps WHERE app = ?';
+      params = [appId];
+    }
+    return this.consoleQuery(sql, params);
+  }
+
+  addCoredump(appId, agentId, file, node, user, fileStatus = 0, fileStorage = '', nodeStatus, nodeStorage = '') {
+    const sql = 'INSERT INTO coredumps (app, agent, file, node, user, file_status, file_storage, node_status, node_storage) '
+      + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const params = [appId, agentId, file, node, user, fileStatus, fileStorage, nodeStatus, nodeStorage];
     return this.consoleQuery(sql, params);
   }
 

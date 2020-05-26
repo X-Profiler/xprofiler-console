@@ -3,50 +3,32 @@
 const zlib = require('zlib');
 const { PassThrough } = require('stream');
 const pMap = require('p-map');
-const moment = require('moment');
 const Controller = require('egg').Controller;
 
 class FileController extends Controller {
   async getFiles() {
-    const { ctx, ctx: { app: { modifyFileName }, service: { mysql } } } = this;
-    const { appId, filterType, currentPage, pageSize } = ctx.query;
-
-    // get files
-    const files = await mysql.getFiles(appId, filterType);
+    const { ctx, ctx: { service: { file } } } = this;
+    const { currentPage, pageSize } = ctx.query;
     const start = (currentPage - 1) * pageSize;
     const end = currentPage * pageSize;
-    const count = files.length;
-    let list = files
-      .filter((...args) => args[1] >= start && args[1] < end);
 
-    // get users;
-    let users = Array.from(new Set(list.map(item => item.user)));
-    users = (await mysql.getUserByUserIds(users)).reduce((users, user) => {
-      users[user.id] = user;
-      return users;
-    }, {});
+    const tasks = [];
+    tasks.push(file.getNormalFiles(ctx.query));
+    tasks.push(file.getCoredumpFiles(ctx.query));
+    const [
+      { list: normalList, count: normalCount },
+      { list: coreList, count: coreCount },
+    ] = await Promise.all(tasks);
 
-    list = list.map(item => {
-      const {
-        type: fileType,
-        file,
-        storage,
-        user: creator,
-        gm_create,
-        agent,
-        status,
-        favor,
-        id: fileId,
-      } = item;
-      return {
-        fileId, fileType, file, agent, status, favor,
-        creator: users[creator] ? users[creator].name : creator,
-        time: moment(gm_create).format('YYYY-MM-DD HH:mm:ss'),
-        basename: storage ? modifyFileName(storage) : modifyFileName(file),
-      };
-    });
-
-    ctx.body = { ok: true, data: { list, count } };
+    ctx.body = {
+      ok: true, data: {
+        list: normalList
+          .concat(coreList)
+          .sort((o, n) => (new Date(o.time) < new Date(n.time) ? 1 : -1))
+          .filter((...args) => args[1] >= start && args[1] < end),
+        count: normalCount + coreCount,
+      },
+    };
   }
 
   async checkFileStatus() {
