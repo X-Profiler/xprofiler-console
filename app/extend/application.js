@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const kitx = require('kitx');
 const crypto = require('crypto');
 const moment = require('moment');
@@ -67,10 +68,25 @@ module.exports = {
 
   modifyFileName(fileName) {
     const regexp = /^u-.*-u-(.*)$/;
-    if (!regexp.test(fileName)) {
-      return fileName;
+    // storage
+    if (regexp.test(fileName)) {
+      const [, name] = regexp.exec(fileName);
+      return name;
     }
-    const [, name] = regexp.exec(fileName);
-    return name;
+
+    // file path1
+    const uploadName = path.basename(fileName);
+    if (uploadName !== fileName) {
+      return uploadName;
+    }
+
+    // file path2
+    const regexp2 = /(x-.*\..*)/;
+    if (regexp2.exec(fileName)) {
+      const [, name] = regexp2.exec(fileName);
+      return name;
+    }
+
+    return fileName;
   },
 };

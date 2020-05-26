@@ -129,7 +129,7 @@ class ProcessController extends Controller {
     const { userId } = ctx.user;
 
     // get trend map
-    const saveTrendDuration = 7 * 24; // 1w
+    const saveTrendDuration = 24; // 1w
     const trends = await process.getDataByPeriodAndPid(appId, agentId, saveTrendDuration * 60, pid);
     const trendTypes = [
       'heapTrend', 'cpuTrend', 'heapSpaceTrend',

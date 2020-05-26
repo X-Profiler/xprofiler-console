@@ -42,7 +42,7 @@ class FileController extends Controller {
         fileId, fileType, file, agent, status, favor,
         creator: users[creator] ? users[creator].name : creator,
         time: moment(gm_create).format('YYYY-MM-DD HH:mm:ss'),
-        basename: storage ? modifyFileName(storage) : '',
+        basename: storage ? modifyFileName(storage) : modifyFileName(file),
       };
     });
 

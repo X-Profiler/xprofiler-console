@@ -3,7 +3,6 @@
 const fs = require('fs');
 const { promisify } = require('util');
 const unlink = promisify(fs.unlink);
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const Controller = require('egg').Controller;
 
@@ -53,13 +52,7 @@ class UploadController extends Controller {
     }
 
     // get upload file name
-    let uploadName = path.basename(fileName);
-    if (uploadName === fileName) {
-      const tmp = /(x-.*\..*)/.exec(fileName);
-      if (tmp) {
-        uploadName = tmp[1];
-      }
-    }
+    const uploadName = ctx.app.modifyFileName(fileName);
     const uploadFileName = `u-${uuidv4()}-u-${uploadName}`;
 
     // save file
