@@ -8,7 +8,7 @@ const Controller = require('egg').Controller;
 
 class FileController extends Controller {
   async getFiles() {
-    const { ctx, ctx: { service: { mysql } } } = this;
+    const { ctx, ctx: { app: { modifyFileName }, service: { mysql } } } = this;
     const { appId, filterType, currentPage, pageSize } = ctx.query;
 
     // get files
@@ -30,6 +30,7 @@ class FileController extends Controller {
       const {
         type: fileType,
         file,
+        storage,
         user: creator,
         gm_create,
         agent,
@@ -41,6 +42,7 @@ class FileController extends Controller {
         fileId, fileType, file, agent, status, favor,
         creator: users[creator] ? users[creator].name : creator,
         time: moment(gm_create).format('YYYY-MM-DD HH:mm:ss'),
+        basename: storage ? modifyFileName(storage) : '',
       };
     });
 
