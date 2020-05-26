@@ -116,10 +116,10 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
-  addFile(appId, agentId, type, file, user) {
-    const sql = 'INSERT INTO files (app, agent, type, file, user) '
-      + 'VALUES (?, ?, ?, ?, ?)';
-    const params = [appId, agentId, type, file, user];
+  addFile(appId, agentId, type, file, user, status = 0, storage = '') {
+    const sql = 'INSERT INTO files (app, agent, type, file, user, status, storage) '
+      + 'VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const params = [appId, agentId, type, file, user, status, storage];
     return this.consoleQuery(sql, params);
   }
 

@@ -5,7 +5,7 @@ const Controller = require('egg').Controller;
 
 class DevtoolsController extends Controller {
   chooseDevtools(type) {
-    const { ctx } = this;
+    const { ctx, ctx: { app } } = this;
     const { fileId, fileType, selectedTab } = ctx.query;
     const { storage } = ctx.file[ctx.createFileKey(fileId, fileType)];
 
@@ -13,9 +13,7 @@ class DevtoolsController extends Controller {
       return (ctx.body = { ok: false, message: '文件未转储' });
     }
 
-    const regexp = /^u-.*-u-(.*)$/;
-    const [, fileName] = regexp.exec(storage);
-
+    const fileName = app.modifyFileName(storage);
     const query = { fileId, fileType, fileName, selectedTab };
     ctx.redirect(`/public/devtools/${type}/devtools_app.html?${qs.stringify(query)}`);
   }

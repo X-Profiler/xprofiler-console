@@ -40,6 +40,7 @@ module.exports = app => {
   router.get('/xapi/xprofiler_processes', userRequired, appMemberRequired, checkParams(['agentId']), 'process.getXprofilerProcesses');
   router.get('/xapi/xprofiler_status', userRequired, appMemberRequired, checkParams(['agentId', 'pid']), 'process.checkXprofilerStatus');
   router.get('/xapi/process_trend', userRequired, appMemberRequired, checkParams(['agentId', 'pid', 'trendType', 'duration']), 'process.getProcessTrend');
+  router.post('/xapi/process_trend', userRequired, appMemberRequired, checkParams(['agentId', 'pid']), 'process.saveProcessTrend');
   router.post('/xapi/action', userRequired, appMemberRequired, checkParams(['agentId', 'pid', 'action']), 'process.takeAction');
 
   // instance/system

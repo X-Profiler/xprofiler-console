@@ -1,5 +1,10 @@
 'use strict';
 
+const zlib = require('zlib');
+const promisify = require('util').promisify;
+const gzip = promisify(zlib.gzip);
+const moment = require('moment');
+const { v4: uuidv4 } = require('uuid');
 const Controller = require('egg').Controller;
 
 class ProcessController extends Controller {
@@ -116,6 +121,35 @@ class ProcessController extends Controller {
     const data = process.handleTrends(trends, trendType, duration);
 
     ctx.body = { ok: true, data };
+  }
+
+  async saveProcessTrend() {
+    const { ctx, ctx: { app: { storage, modifyFileName }, service: { process, mysql } } } = this;
+    const { appId, agentId, pid } = ctx.request.body;
+    const { userId } = ctx.user;
+
+    // get trend map
+    const saveTrendDuration = 7 * 24; // 1w
+    const trends = await process.getDataByPeriodAndPid(appId, agentId, saveTrendDuration * 60, pid);
+    const trendTypes = [
+      'heapTrend', 'cpuTrend', 'heapSpaceTrend',
+      'gcTrend', 'uvTrend', 'qpsTrend',
+      'timerTrend', 'tcpTrend', 'udpTrend'];
+    const trendMap = trendTypes.reduce((map, type) => {
+      map[type] = process.handleTrends(trends, type, saveTrendDuration);
+      return map;
+    }, {});
+
+    // save trends
+    const storageName = `u-${uuidv4()}-u-x-process-snapshot-${pid}-` +
+      `${moment().format('YYYYMMDD')}-${parseInt(Math.random() * 10e4)}.trend`;
+    const fileName = modifyFileName(storageName);
+    const tasks = [];
+    tasks.push(mysql.addFile(appId, agentId, 'trend', fileName, userId, 3, storageName));
+    tasks.push(storage.saveFile(storageName, await gzip(JSON.stringify(trendMap))));
+    await Promise.all(tasks);
+
+    ctx.body = { ok: true, data: { file: fileName } };
   }
 
   async takeAction() {

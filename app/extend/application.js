@@ -64,4 +64,13 @@ module.exports = {
     }
     return list;
   },
+
+  modifyFileName(fileName) {
+    const regexp = /^u-.*-u-(.*)$/;
+    if (!regexp.test(fileName)) {
+      return fileName;
+    }
+    const [, name] = regexp.exec(fileName);
+    return name;
+  },
 };
