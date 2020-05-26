@@ -67,7 +67,49 @@ class UploadController extends Controller {
   async fromConsole() {
     const { ctx, ctx: { app: { storage, modifyFileName }, service: { mysql } } } = this;
     const { appId, fileType } = ctx.query;
+    const { userId } = ctx.user;
 
+    // save core
+    if (fileType === 'core') {
+      const [coreFile, nodeFile] = ctx.request.files;
+      if (!coreFile || !nodeFile) {
+        return (ctx.body = { ok: false, message: '上传文件不存在' });
+      }
+
+      // get file streams
+      const files = [coreFile, nodeFile];
+      const passes = [];
+      for (const { filepath, filename } of files) {
+        const pass = new PassThrough();
+        const gzip = zlib.createGzip();
+        fs.createReadStream(filepath).pipe(gzip).pipe(pass);
+        passes.push({ pass, filepath, filename });
+      }
+
+      // save files
+      const tasks = [];
+      const params = { files: [], storages: [], paths: [] };
+      for (const { pass, filename, filepath } of passes) {
+        const fileName = modifyFileName(filename);
+        const uploadFileName = `u-${uuidv4()}-u-${fileName}`;
+        tasks.push(storage.saveFile(uploadFileName, pass));
+        params.files.push(fileName);
+        params.storages.push(uploadFileName);
+        params.paths.push(filepath);
+      }
+      const {
+        files: [coreFileName, nodeFileName],
+        storages: [coreFileStorage, nodeFileStorage],
+        paths,
+      } = params;
+      await mysql.addCoredump(appId, 'upload', coreFileName, nodeFileName, userId, 3, coreFileStorage, nodeFileStorage);
+      await paths.map(unlink);
+
+      ctx.body = { ok: true, data: { file: coreFileName } };
+      return;
+    }
+
+    // save file
     const uploadFile = ctx.request.files[0];
     if (!uploadFile) {
       return (ctx.body = { ok: false, message: '上传文件不存在' });
@@ -79,7 +121,6 @@ class UploadController extends Controller {
     fs.createReadStream(uploadFile.filepath).pipe(gzip).pipe(pass);
 
     // save file
-    const { userId } = ctx.user;
     const fileName = modifyFileName(uploadFile.filename);
     const uploadFileName = `u-${uuidv4()}-u-${fileName}`;
     const tasks = [];

@@ -51,6 +51,26 @@ CREATE TABLE `files`(
   `gm_modified` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `gm_create` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY (`app`, `agent`, `file`),
+  UNIQUE KEY (`app`, `agent`, `file`, `storage`),
   INDEX (`id`, `app`, `type`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `coredumps`;
+CREATE TABLE `coredumps`(
+  `id` INT UNSIGNED AUTO_INCREMENT,
+  `app` INT NOT NULL,
+  `agent` VARCHAR(50) NOT NULL,
+  `file` VARCHAR(250) NOT NULL,
+  `file_storage` VARCHAR(250) DEFAULT "",
+  `node` VARCHAR(250) NOT NULL,
+  `node_storage` VARCHAR(250) DEFAULT "",
+  `user` INT UNSIGNED NOT NULL,
+  `status` TINYINT UNSIGNED DEFAULT 0,
+  `favor` TINYINT UNSIGNED DEFAULT 0,
+  `token` VARCHAR(50) DEFAULT "",
+  `gm_modified` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gm_create` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`app`, `agent`, `file`, `file_storage`),
+  INDEX (`id`, `app`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

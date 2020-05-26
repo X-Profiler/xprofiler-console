@@ -160,6 +160,14 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  /* table <coredumps> */
+  addCoredump(appId, agentId, file, node, user, status = 0, fileStorage = '', nodeStorage = '') {
+    const sql = 'INSERT INTO coredumps (app, agent, file, node, user, status, file_storage, node_storage) '
+      + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    const params = [appId, agentId, file, node, user, status, fileStorage, nodeStorage];
+    return this.consoleQuery(sql, params);
+  }
+
   /* table <members> */
   getTeamMembersByAppId(appId) {
     const sql = 'SELECT * FROM members WHERE app = ?';
