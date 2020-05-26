@@ -1,6 +1,8 @@
 'use strict';
 
 const fs = require('fs');
+const zlib = require('zlib');
+const { PassThrough } = require('stream');
 const { promisify } = require('util');
 const unlink = promisify(fs.unlink);
 const { v4: uuidv4 } = require('uuid');
@@ -60,6 +62,33 @@ class UploadController extends Controller {
     await unlink(uploadFile.filepath);
 
     ctx.body = { ok: true, data: { storage: uploadFileName } };
+  }
+
+  async fromConsole() {
+    const { ctx, ctx: { app: { storage, modifyFileName }, service: { mysql } } } = this;
+    const { appId, fileType } = ctx.query;
+
+    const uploadFile = ctx.request.files[0];
+    if (!uploadFile) {
+      return (ctx.body = { ok: false, message: '上传文件不存在' });
+    }
+
+    // get file stream
+    const pass = new PassThrough();
+    const gzip = zlib.createGzip();
+    fs.createReadStream(uploadFile.filepath).pipe(gzip).pipe(pass);
+
+    // save file
+    const { userId } = ctx.user;
+    const fileName = modifyFileName(uploadFile.filename);
+    const uploadFileName = `u-${uuidv4()}-u-${fileName}`;
+    const tasks = [];
+    tasks.push(storage.saveFile(uploadFileName, pass));
+    tasks.push(mysql.addFile(appId, 'upload', fileType, fileName, userId, 3, uploadFileName));
+    await Promise.all(tasks);
+    await unlink(uploadFile.filepath);
+
+    ctx.body = { ok: true, data: { file: fileName } };
   }
 }
 
