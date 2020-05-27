@@ -74,6 +74,19 @@ class AlarmController extends Controller {
 
     ctx.body = { ok: true };
   }
+
+  async getStrategyHistory() {
+    const { ctx, ctx: { service: { alarm } } } = this;
+    const { strategyId, currentPage, pageSize } = ctx.query;
+
+    const start = (currentPage - 1) * pageSize;
+    const end = currentPage * pageSize;
+    const history = await alarm.getHistoryByPeriod(strategyId, 24 * 60);
+    const list = history.filter((...args) => args[1] >= start && args[1] < end);
+    const count = history.length;
+
+    ctx.body = { ok: true, data: { list, count } };
+  }
 }
 
 module.exports = AlarmController;

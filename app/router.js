@@ -79,6 +79,9 @@ module.exports = app => {
   router.put('/xapi/alarm_strategy_status', userRequired, strategyAccessibleRequired, 'alarm.updateStrategyStatus');
   router.delete('/xapi/alarm_strategy', userRequired, strategyAccessibleRequired, 'alarm.deleteStrategy');
 
+  // alarm/history
+  router.get('/xapi/alarm_strategy_history', userRequired, strategyAccessibleRequired, 'alarm.getStrategyHistory');
+
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');
   router.put('/xapi/settings_app_name', userRequired, appOwnerRequired, checkParams(['newAppName']), 'settings.renameApp');
