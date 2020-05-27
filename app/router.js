@@ -82,6 +82,11 @@ module.exports = app => {
   // alarm/history
   router.get('/xapi/alarm_strategy_history', userRequired, strategyAccessibleRequired, 'alarm.getStrategyHistory');
 
+  // alarm/contacts
+  router.get('/xapi/alarm_strategy_contacts', userRequired, strategyAccessibleRequired, 'alarm.getStrategyContacts');
+  router.post('/xapi/alarm_strategy_contact', userRequired, strategyAccessibleRequired, 'alarm.addContactToStrategy');
+  router.delete('/xapi/alarm_strategy_contact', userRequired, strategyAccessibleRequired, 'alarm.deleteContactFromStrategy');
+
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');
   router.put('/xapi/settings_app_name', userRequired, appOwnerRequired, checkParams(['newAppName']), 'settings.renameApp');

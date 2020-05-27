@@ -25,6 +25,30 @@ class AlarmService extends Service {
 
     return list;
   }
+
+  async getTotalContacts(appId) {
+    const { ctx, ctx: { service: { mysql } } } = this;
+
+    const tasks = [];
+    tasks.push(mysql.getAppByAppId(appId));
+    tasks.push(mysql.getTeamMembersByAppId(appId));
+    const [{ owner }, members] = await Promise.all(tasks);
+    const totalContacts = [owner].concat(members.map(({ user }) => user));
+    const userMap = await ctx.getUserMap(totalContacts);
+
+    return { totalContacts, userMap };
+  }
+
+  async checkUserInAppMembers(appId, userId) {
+    const { ctx } = this;
+
+    const { totalContacts, userMap } = await this.getTotalContacts(appId);
+    if (!totalContacts.includes(userId)) {
+      ctx.body = { ok: false, message: `用户 ${userMap[userId] && userMap[userId].name || userId} 不在此应用成员列表中` };
+      return false;
+    }
+    return true;
+  }
 }
 
 module.exports = AlarmService;

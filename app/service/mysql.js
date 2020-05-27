@@ -290,6 +290,25 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  /* table  <contacts> */
+  getContactsByStrategyId(strategyId) {
+    const sql = 'SELECT * FROM contacts WHERE strategy = ?';
+    const params = [strategyId];
+    return this.consoleQuery(sql, params);
+  }
+
+  addContactToStrategy(strategyId, userId) {
+    const sql = 'INSERT INTO contacts (strategy, user) VALUES (?, ?)';
+    const params = [strategyId, userId];
+    return this.consoleQuery(sql, params);
+  }
+
+  deleteContactFromStrategy(strategyId, userId) {
+    const sql = 'DELETE FROM contacts WHERE strategy = ? AND user = ?';
+    const params = [strategyId, userId];
+    return this.consoleQuery(sql, params);
+  }
+
   /* process_${DD} or osinfo_${DD} */
   getXnppLogs(table, appId, agentId, start, end, pid) {
     const sql = `SELECT * FROM ${table} WHERE app = ? AND agent = ? `
