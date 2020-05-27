@@ -144,7 +144,11 @@ class FileController extends Controller {
       return (ctx.body = { ok: false, message: `已经${oldFavor ? '取消收藏' : '收藏'}` });
     }
 
-    await mysql.updateFileFavor(fileId, favor);
+    if (fileType !== 'core') {
+      await mysql.updateFileFavor(fileId, favor);
+    } else {
+      await mysql.updateCoredumpFavor(fileId, favor);
+    }
 
     ctx.body = { ok: true };
   }

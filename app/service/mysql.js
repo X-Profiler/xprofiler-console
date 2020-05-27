@@ -181,6 +181,18 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  getCoredumpById(fileId) {
+    const sql = 'SELECT * FROM coredumps WHERE id = ?';
+    const params = [fileId];
+    return this.consoleQuery(sql, params).then(data => data[0]);
+  }
+
+  updateCoredumpFavor(fileId, favor) {
+    const sql = 'UPDATE coredumps SET favor = ? WHERE id = ?';
+    const params = [favor, fileId];
+    return this.consoleQuery(sql, params);
+  }
+
   /* table <members> */
   getTeamMembersByAppId(appId) {
     const sql = 'SELECT * FROM members WHERE app = ?';

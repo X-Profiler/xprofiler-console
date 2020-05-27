@@ -89,6 +89,8 @@ module.exports = () => {
       const filesInfo = await pMap(checks, async ({ fileId, fileType }) => {
         if (fileType !== 'core') {
           return await mysql.getFileByIdAndType(fileId, fileType);
+        } else {
+          return await mysql.getCoredumpById(fileId);
         }
       }, { concurrency: 2 });
 
@@ -105,7 +107,11 @@ module.exports = () => {
         tasks.push(mysql.checkAppMemberByUserId(appId, userId, 2));
         const [owner, member] = await Promise.all(tasks);
         if (owner || member) {
-          ctx.file[ctx.createFileKey(file.id, file.type)] = file;
+          if (fileType !== 'core') {
+            ctx.file[ctx.createFileKey(file.id, file.type)] = file;
+          } else {
+            ctx.file[ctx.createFileKey(file.id, 'core')] = file;
+          }
           return true;
         }
         return false;
