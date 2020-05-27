@@ -249,8 +249,12 @@ class MysqlService extends Service {
     const sql = 'INSERT INTO strategies (app, context, push, webhook, wtype, waddress, wsign, '
       + 'expression, content) '
       + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [appId, contextType, pushType, webhookPush ? 1 : 0, webhookType, webhookAddress,
-      webhookSign, customRuleExpr, customRuleDesc];
+    const params = [appId, contextType, pushType,
+      webhookPush ? 1 : 0,
+      webhookPush ? webhookType : '',
+      webhookPush ? webhookAddress : '',
+      webhookPush ? webhookSign : '',
+      customRuleExpr, customRuleDesc];
     return this.consoleQuery(sql, params);
   }
 
@@ -258,6 +262,26 @@ class MysqlService extends Service {
     const sql = 'SELECT * FROM strategies WHERE id = ?';
     const params = [strategyId];
     return this.consoleQuery(sql, params).then(data => data[0]);
+  }
+
+  updateStrategy(data) {
+    const { strategyId, contextType, pushType, customRuleExpr, customRuleDesc,
+      webhookPush, webhookType = '', webhookAddress = '', webhookSign = '' } = data;
+    const sql = 'UPDATE strategies SET context = ?, push = ?, expression = ?, content = ?, '
+      + 'webhook = ?, wtype = ?, waddress = ?, wsign = ? WHERE id = ?';
+    const params = [contextType, pushType, customRuleExpr, customRuleDesc,
+      webhookPush ? 1 : 0,
+      webhookPush ? webhookType : '',
+      webhookPush ? webhookAddress : '',
+      webhookPush ? webhookSign : '',
+      strategyId];
+    return this.consoleQuery(sql, params);
+  }
+
+  updateStrategyStatus(strategyId, status) {
+    const sql = 'UPDATE strategies SET status = ? WHERE id = ?';
+    const params = [status, strategyId];
+    return this.consoleQuery(sql, params);
   }
 
   deleteStrategyById(strategyId) {

@@ -17,6 +17,10 @@ class AlarmController extends Controller {
         expression,
         content: alarmContent,
         status,
+        webhook: webhookPush,
+        wtype: webhookType,
+        waddress: webhookAddress,
+        wsign: webhookSign,
       } = strategy;
 
       const history = await alarm.getHistoryByPeriod(strategyId, 24 * 60);
@@ -24,6 +28,8 @@ class AlarmController extends Controller {
       return {
         strategyId, contextType, pushType,
         expression, alarmContent, status,
+        webhookPush: Boolean(webhookPush),
+        webhookType, webhookAddress, webhookSign,
         alarmCount: history.length,
       };
     }, { concurrency: 2 });
@@ -35,6 +41,27 @@ class AlarmController extends Controller {
     const { ctx, ctx: { service: { mysql } } } = this;
 
     await mysql.addStrategy(ctx.request.body);
+
+    ctx.body = { ok: true };
+  }
+
+  async updateStrategy() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+
+    await mysql.updateStrategy(ctx.request.body);
+
+    ctx.body = { ok: true };
+  }
+
+  async updateStrategyStatus() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { strategyId, status } = ctx.request.body;
+    const { status: oldStatus } = ctx.strategy;
+
+    if (Number(status) === Number(oldStatus)) {
+      return (ctx.body = { ok: false, message: `此规则已经${oldStatus ? '启用' : '禁用'}` });
+    }
+    await mysql.updateStrategyStatus(strategyId, status);
 
     ctx.body = { ok: true };
   }
