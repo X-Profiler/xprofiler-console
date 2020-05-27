@@ -243,6 +243,17 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  addStrategy(data) {
+    const { appId, contextType, pushType, customRuleExpr, customRuleDesc, webhookPush,
+      webhookTyp = 0, webhookAddress = '', webhookSign = '' } = data;
+    const sql = 'INSERT INTO strategies (app, context, push, webhook, wtype, waddress, wsign, '
+      + 'expression, content) '
+      + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const params = [appId, contextType, pushType, webhookPush ? 1 : 0, webhookTyp, webhookAddress,
+      webhookSign, customRuleExpr, customRuleDesc];
+    return this.consoleQuery(sql, params);
+  }
+
   /* process_${DD} or osinfo_${DD} */
   getXnppLogs(table, appId, agentId, start, end, pid) {
     const sql = `SELECT * FROM ${table} WHERE app = ? AND agent = ? `

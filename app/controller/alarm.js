@@ -30,6 +30,14 @@ class AlarmController extends Controller {
 
     ctx.body = { ok: true, data: { list } };
   }
+
+  async addStrategy() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+
+    await mysql.addStrategy(ctx.request.body);
+
+    ctx.body = { ok: true };
+  }
 }
 
 module.exports = AlarmController;

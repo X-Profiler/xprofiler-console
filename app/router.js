@@ -73,6 +73,7 @@ module.exports = app => {
 
   // alarm
   router.get('/xapi/alarm_strategies', userRequired, appMemberRequired, 'alarm.getStrategies');
+  router.post('/xapi/alarm_strategy', userRequired, appMemberRequired, 'alarm.addStrategy');
 
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');
