@@ -1,6 +1,10 @@
 'use strict';
 
 module.exports = {
+  createFileKey(fileId, fileType) {
+    return `${fileId}::${fileType}`;
+  },
+
   async tryCatch(serv, func, args, message) {
     const { service } = this;
 
@@ -79,7 +83,11 @@ module.exports = {
     return stdout;
   },
 
-  createFileKey(fileId, fileType) {
-    return `${fileId}::${fileType}`;
+  checkAppMember(appId, userId) {
+    const { service: { mysql } } = this;
+    const tasks = [];
+    tasks.push(mysql.checkAppOwnerByUserId(appId, userId));
+    tasks.push(mysql.checkAppMemberByUserId(appId, userId, 2));
+    return Promise.all(tasks);
   },
 };

@@ -11,6 +11,7 @@ module.exports = app => {
     appMemberRequired,
     appOwnerRequired,
     fileAccessibleRequired,
+    strategyAccessibleRequired,
   } = app.middlewares.auth({}, app);
   const {
     checkParams,
@@ -74,6 +75,7 @@ module.exports = app => {
   // alarm
   router.get('/xapi/alarm_strategies', userRequired, appMemberRequired, 'alarm.getStrategies');
   router.post('/xapi/alarm_strategy', userRequired, appMemberRequired, 'alarm.addStrategy');
+  router.delete('/xapi/alarm_strategy', userRequired, strategyAccessibleRequired, 'alarm.deleteStrategy');
 
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');

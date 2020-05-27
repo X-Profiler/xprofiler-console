@@ -38,6 +38,15 @@ class AlarmController extends Controller {
 
     ctx.body = { ok: true };
   }
+
+  async deleteStrategy() {
+    const { ctx, ctx: { service: { mysql } } } = this;
+    const { strategyId } = ctx.request.body;
+
+    await mysql.deleteStrategyById(strategyId);
+
+    ctx.body = { ok: true };
+  }
 }
 
 module.exports = AlarmController;

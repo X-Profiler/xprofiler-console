@@ -83,7 +83,7 @@ CREATE TABLE `strategies`(
  `context` VARCHAR(50) NOT NULL,
  `push` VARCHAR(50) NOT NULL,
  `webhook` TINYINT UNSIGNED DEFAULT 0,
- `wtype` TINYINT UNSIGNED DEFAULT 0 COMMENT '0 dingtalk',
+ `wtype` VARCHAR(20) DEFAULT '',
  `waddress` VARCHAR(200) DEFAULT '',
  `wsign` VARCHAR(100) DEFAULT '',
  `expression` VARCHAR(150) NOT NULL,

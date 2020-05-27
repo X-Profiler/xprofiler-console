@@ -29,16 +29,12 @@ module.exports = () => {
 
     // check user is owner/member of app
     async appMemberRequired(ctx, next) {
-      const { service: { mysql } } = ctx;
       if (!ctx.checkPossibleParams(['appId'])) {
         return;
       }
       const appId = ctx.query.appId || ctx.request.body.appId;
       const { userId } = ctx.user;
-      const tasks = [];
-      tasks.push(mysql.checkAppOwnerByUserId(appId, userId));
-      tasks.push(mysql.checkAppMemberByUserId(appId, userId, 2));
-      const [owner, member] = await Promise.all(tasks);
+      const [owner, member] = await ctx.checkAppMember(appId, userId);
       if (owner) {
         ctx.appInfo = { owner: true, info: owner };
         return await next();
@@ -101,11 +97,7 @@ module.exports = () => {
       const { userId } = ctx.user;
       ctx.file = {};
       const appMemberAuthList = await pMap(filesInfo, async file => {
-        const { app: appId } = file;
-        const tasks = [];
-        tasks.push(mysql.checkAppOwnerByUserId(appId, userId));
-        tasks.push(mysql.checkAppMemberByUserId(appId, userId, 2));
-        const [owner, member] = await Promise.all(tasks);
+        const [owner, member] = await ctx.checkAppMember(file.app, userId);
         if (owner || member) {
           if (fileType !== 'core') {
             ctx.file[ctx.createFileKey(file.id, file.type)] = file;
@@ -121,7 +113,30 @@ module.exports = () => {
         return ctx.authFailed(403, '您没有文件的访问权限');
       }
 
-      return await next();
+      await next();
+    },
+
+    // check the current user can be access to the strategy
+    async strategyAccessibleRequired(ctx, next) {
+      const { service: { mysql } } = ctx;
+      if (!ctx.checkPossibleParams(['strategyId'])) {
+        return;
+      }
+
+      const strategyId = ctx.query.strategyId || ctx.request.body.strategyId;
+      const strategy = await mysql.getStrategyById(strategyId);
+      if (!strategy) {
+        return ctx.authFailed(404, '规则不存在');
+      }
+
+      const { userId } = ctx.user;
+      const [owner, member] = await ctx.checkAppMember(strategy.app, userId);
+      if (!owner && !member) {
+        return ctx.authFailed(403, '您没有此规则的访问权限');
+      }
+      ctx.strategy = strategy;
+
+      await next();
     },
   };
 };

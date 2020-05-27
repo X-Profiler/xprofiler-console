@@ -238,19 +238,31 @@ class MysqlService extends Service {
 
   /* table <strategies> */
   getStrategiesByAppId(appId) {
-    const sql = 'SELECT * FROM strategies WHERE app = ?';
+    const sql = 'SELECT * FROM strategies WHERE app = ? ORDER BY gm_create DESC';
     const params = [appId];
     return this.consoleQuery(sql, params);
   }
 
   addStrategy(data) {
     const { appId, contextType, pushType, customRuleExpr, customRuleDesc, webhookPush,
-      webhookTyp = 0, webhookAddress = '', webhookSign = '' } = data;
+      webhookType = '', webhookAddress = '', webhookSign = '' } = data;
     const sql = 'INSERT INTO strategies (app, context, push, webhook, wtype, waddress, wsign, '
       + 'expression, content) '
       + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [appId, contextType, pushType, webhookPush ? 1 : 0, webhookTyp, webhookAddress,
+    const params = [appId, contextType, pushType, webhookPush ? 1 : 0, webhookType, webhookAddress,
       webhookSign, customRuleExpr, customRuleDesc];
+    return this.consoleQuery(sql, params);
+  }
+
+  getStrategyById(strategyId) {
+    const sql = 'SELECT * FROM strategies WHERE id = ?';
+    const params = [strategyId];
+    return this.consoleQuery(sql, params).then(data => data[0]);
+  }
+
+  deleteStrategyById(strategyId) {
+    const sql = 'DELETE FROM strategies WHERE id = ?';
+    const params = [strategyId];
     return this.consoleQuery(sql, params);
   }
 
