@@ -110,12 +110,23 @@ class FileController extends Controller {
   async deleteFile() {
     const { ctx, ctx: { app: { storage }, service: { mysql } } } = this;
     const { fileId, fileType } = ctx.request.body;
-    const { storage: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
 
     const tasks = [];
-    tasks.push(mysql.deleteFileById(fileId));
-    if (fileName) {
-      tasks.push(storage.deleteFile(fileName));
+    if (fileType !== 'core') {
+      tasks.push(mysql.deleteFileById(fileId));
+      const { storage: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
+      if (fileName) {
+        tasks.push(storage.deleteFile(fileName));
+      }
+    } else {
+      tasks.push(mysql.deleteCoredumpById(fileId));
+      const { file_storage: fileName, node_storage: nodeName } = ctx.file[ctx.createFileKey(fileId, fileType)];
+      if (fileName) {
+        tasks.push(storage.deleteFile(fileName));
+      }
+      if (nodeName) {
+        tasks.push(storage.deleteFile(nodeName));
+      }
     }
     await Promise.all(tasks);
 

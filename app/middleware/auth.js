@@ -89,9 +89,9 @@ module.exports = () => {
       const filesInfo = await pMap(checks, async ({ fileId, fileType }) => {
         if (fileType !== 'core') {
           return await mysql.getFileByIdAndType(fileId, fileType);
-        } else {
-          return await mysql.getCoredumpById(fileId);
         }
+        return await mysql.getCoredumpById(fileId);
+
       }, { concurrency: 2 });
 
       if (filesInfo.some(file => !file)) {

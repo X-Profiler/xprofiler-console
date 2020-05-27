@@ -25,8 +25,15 @@ class SettingsController extends Controller {
     const { appId } = ctx.request.body;
 
     // delete storage files
-    const files = await mysql.getFiles(appId, 'all');
-    const storages = files.map(file => file.storage);
+    const [files, coredumps] = await Promise.all([
+      await mysql.getFiles(appId, 'all'),
+      await mysql.getCoredumps(appId),
+    ]);
+    const storages = [
+      ...files.map(file => file.storage),
+      ...coredumps.map(core => core.file_storage),
+      ...coredumps.map(core => core.node_storage),
+    ];
     await pMap(storages, async fileName => {
       if (!fileName) {
         return;
@@ -34,11 +41,12 @@ class SettingsController extends Controller {
       await storage.deleteFile(fileName);
     }, { concurrency: 2 });
 
-    // delete app, app members, files
+    // // delete app, app members, files
     const tasks = [];
     tasks.push(mysql.deleteAppByAppId(appId));
     tasks.push(mysql.deleteMembersByAppId(appId));
     tasks.push(mysql.deleteFiles(appId));
+    tasks.push(mysql.deleteCoredumps(appId));
     await Promise.all(tasks);
 
     ctx.body = { ok: true };

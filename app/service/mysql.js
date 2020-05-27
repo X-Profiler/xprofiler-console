@@ -187,6 +187,18 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
 
+  deleteCoredumpById(fileId) {
+    const sql = 'DELETE FROM coredumps WHERE id = ?';
+    const params = [fileId];
+    return this.consoleQuery(sql, params);
+  }
+
+  deleteCoredumps(appId) {
+    const sql = 'DELETE FROM coredumps WHERE app = ?';
+    const params = [appId];
+    return this.consoleQuery(sql, params);
+  }
+
   updateCoredumpFavor(fileId, favor) {
     const sql = 'UPDATE coredumps SET favor = ? WHERE id = ?';
     const params = [favor, fileId];
