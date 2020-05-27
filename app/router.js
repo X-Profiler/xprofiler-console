@@ -71,6 +71,9 @@ module.exports = app => {
   router.delete('/xapi/leave_team', userRequired, appMemberRequired, 'team.leaveTeam');
   router.delete('/xapi/team_member', userRequired, appOwnerRequired, checkParams(['userId']), 'team.removeMember');
 
+  // alarm
+  router.get('/xapi/alarm_strategies', userRequired, appMemberRequired, 'alarm.getStrategies');
+
   // settings
   router.get('/xapi/settings', userRequired, appOwnerRequired, 'settings.getSettingInfo');
   router.put('/xapi/settings_app_name', userRequired, appOwnerRequired, checkParams(['newAppName']), 'settings.renameApp');

@@ -236,6 +236,13 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  /* table <strategies> */
+  getStrategiesByAppId(appId) {
+    const sql = 'SELECT * FROM strategies WHERE app = ?';
+    const params = [appId];
+    return this.consoleQuery(sql, params);
+  }
+
   /* process_${DD} or osinfo_${DD} */
   getXnppLogs(table, appId, agentId, start, end, pid) {
     const sql = `SELECT * FROM ${table} WHERE app = ? AND agent = ? `
@@ -246,6 +253,15 @@ class MysqlService extends Service {
     if (pid) {
       params.push(pid);
     }
+    return this.logsQuery(sql, params);
+  }
+
+  /* alarm_${DD} */
+  getAlarmHistory(table, strategyId, start, end) {
+    const sql = `SELECT * FROM ${table} WHERE strategy = ? `
+      + 'AND gm_create >= ? AND gm_create < ? '
+      + 'ORDER BY gm_create DESC';
+    const params = [strategyId, start, end];
     return this.logsQuery(sql, params);
   }
 }

@@ -3,14 +3,14 @@
 const Service = require('egg').Service;
 
 class ProcessService extends Service {
-  async getDataByPeriod(appId, agentId, peroid) {
+  async getDataByPeriod(appId, agentId, period) {
     const { ctx: { service: { metric } } } = this;
-    return await metric.getDataByPeriod(appId, agentId, 'process_', peroid);
+    return await metric.getDataByPeriod(appId, agentId, 'process_', period);
   }
 
-  async getDataByPeriodAndPid(appId, agentId, peroid, pid) {
+  async getDataByPeriodAndPid(appId, agentId, period, pid) {
     const { ctx: { service: { metric } } } = this;
-    return await metric.getDataByPeriod(appId, agentId, 'process_', peroid, pid);
+    return await metric.getDataByPeriod(appId, agentId, 'process_', period, pid);
   }
 
   handleTrends(trends, type, duration) {

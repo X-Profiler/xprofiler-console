@@ -73,9 +73,9 @@ class SystemService extends Service {
     return Object.assign({}, ...logs);
   }
 
-  async getDataByPeriod(appId, agentId, peroid) {
+  async getDataByPeriod(appId, agentId, period) {
     const { ctx: { service: { metric } } } = this;
-    const logs = await metric.getDataByPeriod(appId, agentId, 'osinfo_', peroid);
+    const logs = await metric.getDataByPeriod(appId, agentId, 'osinfo_', period);
 
     const logMap = {};
     for (const log of logs) {

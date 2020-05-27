@@ -5,10 +5,10 @@ const moment = require('moment');
 const Service = require('egg').Service;
 
 class MetricService extends Service {
-  async getDataByPeriod(appId, agentId, tablePrefix, peroid, pid) {
+  async getDataByPeriod(appId, agentId, tablePrefix, period, pid) {
     const { ctx, ctx: { app, service: { mysql } } } = this;
 
-    const periods = app.getPeriods(peroid);
+    const periods = app.getPeriods(period);
     let list = await pMap(periods, async ({ date, start, end }) => {
       let data;
       try {
