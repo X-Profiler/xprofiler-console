@@ -50,6 +50,7 @@ module.exports = app => {
 
   // instance/error
   router.get('/xapi/error_files', userRequired, appMemberRequired, checkParams(['agentId']), 'error.getFiles');
+  router.get('/xapi/error_logs', userRequired, appMemberRequired, checkParams(['agentId', 'errorFile', 'currentPage', 'pageSize']), 'error.getLogs');
 
   // instance/module
   router.get('/xapi/module_files', userRequired, appMemberRequired, checkParams(['agentId']), 'module.getFiles');

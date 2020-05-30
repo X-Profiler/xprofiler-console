@@ -55,6 +55,10 @@ class ManagerService extends Service {
     return this.request('/xprofiler/files', { appId, agentId, type }, {});
   }
 
+  getErrors(appId, agentId, errorFile, currentPage, pageSize) {
+    return this.request('/xprofiler/errors', { appId, agentId, errorFile, currentPage, pageSize }, {});
+  }
+
   // exec commands
   getAgentOsInfo(appId, agentId) {
     return this.request('/xprofiler/agent_osinfo', { appId, agentId });

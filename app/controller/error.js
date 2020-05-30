@@ -21,6 +21,21 @@ class ErrorController extends Controller {
 
     ctx.body = { ok: true, data: { list } };
   }
+
+  async getLogs() {
+    const { ctx, ctx: { service: { manager } } } = this;
+    const { appId, agentId, errorFile, currentPage, pageSize } = ctx.query;
+
+    const { errors, count } = await manager.getErrors(appId, agentId, errorFile, currentPage, pageSize);
+
+    ctx.body = {
+      ok: true,
+      data: {
+        count,
+        list: Array.isArray(errors) ? errors : [],
+      },
+    };
+  }
 }
 
 module.exports = ErrorController;
