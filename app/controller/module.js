@@ -11,15 +11,25 @@ class ModuleController extends Controller {
     let list = [];
     const { files } = await manager.getFiles(appId, agentId, 'package');
     if (Array.isArray(files)) {
-      list = files.map(filePath => {
+      list = files.map(({ filePath, risk, riskModules }) => {
         return {
           label: path.basename(filePath),
           value: filePath,
+          risk, riskModules
         };
       });
     }
 
     ctx.body = { ok: true, data: { list } };
+  }
+
+  async getModules() {
+    const { ctx, ctx: { service: { manager } } } = this;
+    const { appId, agentId, moduleFile } = ctx.query;
+
+    const data = await manager.getModules(appId, agentId, moduleFile);
+
+    ctx.body = { ok: true, data };
   }
 }
 

@@ -54,6 +54,7 @@ module.exports = app => {
 
   // instance/module
   router.get('/xapi/module_files', userRequired, appMemberRequired, checkParams(['agentId']), 'module.getFiles');
+  router.get('/xapi/module', userRequired, appMemberRequired, checkParams(['agentId', 'moduleFile']), 'module.getModules');
 
   // file
   router.get('/xapi/files', userRequired, appMemberRequired, checkParams(['filterType', 'currentPage', 'pageSize']), 'file.getFiles');

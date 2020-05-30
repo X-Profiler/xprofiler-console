@@ -11,7 +11,6 @@ class ManagerService extends Service {
       let { data: result } = await ctx.curl(url, {
         method: 'POST',
         data,
-        nestedQuerystring: true,
         timeout: data.expiredTime || httpTimeout,
         contentType: 'json',
       });
@@ -57,6 +56,10 @@ class ManagerService extends Service {
 
   getErrors(appId, agentId, errorFile, currentPage, pageSize) {
     return this.request('/xprofiler/errors', { appId, agentId, errorFile, currentPage, pageSize }, {});
+  }
+
+  getModules(appId, agentId, moduleFile) {
+    return this.request('/xprofiler/modules', { appId, agentId, moduleFile }, {});
   }
 
   // exec commands
