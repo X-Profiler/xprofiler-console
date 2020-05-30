@@ -46,9 +46,13 @@ class ManagerService extends Service {
     }
   }
 
-  // comman manager request
+  // common manager request
   getClients(appId) {
     return this.request('/xprofiler/clients', { appId }, {});
+  }
+
+  getFiles(appId, agentId, type) {
+    return this.request('/xprofiler/files', { appId, agentId, type }, {});
   }
 
   // exec commands
