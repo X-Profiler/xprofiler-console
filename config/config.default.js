@@ -99,6 +99,8 @@ module.exports = appInfo => {
 
   config.uploadFileExpiredTime = 20 * 60 * 1000;
 
+  config.auditExpiredTime = 2 * 60 * 1000;
+
   config.uploadNoncePrefix = 'XTRANSIT_UPLOAD_NONCE::';
 
   const userConfig = {};

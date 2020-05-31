@@ -51,7 +51,12 @@ class ManagerService extends Service {
   }
 
   getFiles(appId, agentId, type) {
-    return this.request('/xprofiler/files', { appId, agentId, type }, {});
+    const { ctx: { app: { config: { auditExpiredTime: expiredTime } } } } = this;
+    const data = { appId, agentId, type };
+    if (type === 'package') {
+      data.expiredTime = expiredTime;
+    }
+    return this.request('/xprofiler/files', data, {});
   }
 
   getErrors(appId, agentId, errorFile, currentPage, pageSize) {

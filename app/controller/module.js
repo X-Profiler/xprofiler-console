@@ -15,7 +15,7 @@ class ModuleController extends Controller {
         return {
           label: path.basename(filePath),
           value: filePath,
-          risk, riskModules
+          risk, riskModules,
         };
       });
     }
