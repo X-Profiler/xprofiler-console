@@ -35,7 +35,8 @@ class MetricService extends Service {
     const formatter = 'YYYY-MM-DD HH:mm';
     const count = 720;
 
-    const end = new Date(trends[0].log_time).getTime();
+    // const end = new Date(trends[0].log_time).getTime();
+    const end = Date.now();
     const start = end - duration * 60 * 60 * 1000;
     const interval = duration * 60 / count * 60 * 1000;
 
