@@ -62,6 +62,32 @@ module.exports = () => {
       ctx.authFailed(403, '您没有此页面的访问权限');
     },
 
+    // check the current user can be access to the agent
+    async agentAccessibleRequired(ctx, next) {
+      if (!ctx.checkPossibleParams(['appId', 'agentId'])) {
+        return;
+      }
+
+      const { service: { manager } } = ctx;
+
+      // check is app member
+      const { userId } = ctx.user;
+      const appId = ctx.query.appId || ctx.request.body.appId;
+      const [owner, member] = await ctx.checkAppMember(appId, userId);
+      if (!owner && !member) {
+        return ctx.authFailed(403, '您没有此应用的访问权限');
+      }
+
+      // check the agent belongs to this app
+      const agentId = ctx.query.agentId || ctx.request.body.agentId;
+      const { clients } = await manager.getClients(appId);
+      if (!Array.isArray(clients) || clients.every(client => client.agentId !== agentId)) {
+        return ctx.authFailed(403, '您没有此实例的访问权限');
+      }
+
+      await next();
+    },
+
     // check the current user can be access to the file(s)
     async fileAccessibleRequired(ctx, next) {
       const { service: { mysql } } = ctx;
