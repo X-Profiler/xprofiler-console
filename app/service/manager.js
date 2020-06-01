@@ -50,9 +50,9 @@ class ManagerService extends Service {
     return this.request('/xprofiler/clients', { appId }, {});
   }
 
-  getFiles(appId, agentId, type) {
+  getFiles(appId, agentId, type, options) {
     const { ctx: { app: { config: { auditExpiredTime: expiredTime } } } } = this;
-    const data = { appId, agentId, type };
+    const data = { appId, agentId, type, options };
     if (type === 'package') {
       data.expiredTime = expiredTime;
     }
@@ -63,8 +63,8 @@ class ManagerService extends Service {
     return this.request('/xprofiler/errors', { appId, agentId, errorFile, currentPage, pageSize }, {});
   }
 
-  getModules(appId, agentId, moduleFile) {
-    return this.request('/xprofiler/modules', { appId, agentId, moduleFile }, {});
+  getModules(appId, agentId, moduleFile, options) {
+    return this.request('/xprofiler/modules', { appId, agentId, moduleFile, options }, {});
   }
 
   // exec commands

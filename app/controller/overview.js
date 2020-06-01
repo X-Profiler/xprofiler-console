@@ -5,14 +5,50 @@ const Controller = require('egg').Controller;
 
 class OverviewController extends Controller {
   async getOverviewMetrics() {
-    const { ctx, ctx: { service: { manager } } } = this;
+    const { ctx, ctx: { service: { manager, mysql, alarm } } } = this;
     const { appId } = ctx.query;
 
-    const { clients } = await manager.getClients(appId);
 
-    const data = {
-      instanceCount: Array.isArray(clients) && clients.length,
-    };
+    const tasks = [];
+    tasks.push(manager.getClients(appId));
+    tasks.push(mysql.getStrategiesByAppId(appId));
+    const [{ clients }, strategies] = await Promise.all(tasks);
+
+    // get instance count
+    const instanceCount = Array.isArray(clients) && clients.length;
+
+    // get alarm count
+    let alarmCount;
+    if (instanceCount) {
+      alarmCount = (await pMap(strategies, async ({ id }) => {
+        const history = await alarm.getHistoryByPeriod(id, 24 * 60);
+        return history.length;
+      }, { concurrency: 2 })).reduce((total, count) => (total += count), 0);
+    }
+
+    // get risk count
+    let riskCount;
+    if (instanceCount) {
+      if (instanceCount === 0) {
+        riskCount = 0;
+      } else {
+        const { agentId } = clients[0];
+        const { files } = await manager.getFiles(appId, agentId, 'package', { fromCache: true });
+        if (!Array.isArray(files)) {
+          riskCount = '-';
+        } else if (files.every(file => !file.risk)) {
+          riskCount = '-';
+        } else {
+          riskCount = files.reduce((total, fileInfo) => {
+            const { vulnerabilities: { high, critical } } = fileInfo.risk;
+            return (total += (Number(high) + Number(critical)));
+          }, 0);
+        }
+      }
+    }
+
+    const data = { instanceCount, alarmCount, riskCount };
+
     ctx.body = { ok: true, data };
   }
 

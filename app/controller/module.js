@@ -9,7 +9,7 @@ class ModuleController extends Controller {
     const { appId, agentId } = ctx.query;
 
     let list = [];
-    const { files } = await manager.getFiles(appId, agentId, 'package');
+    const { files } = await manager.getFiles(appId, agentId, 'package', { fromCache: true });
     if (Array.isArray(files)) {
       list = files.map(({ filePath, risk, riskModules }) => {
         return {
@@ -27,7 +27,7 @@ class ModuleController extends Controller {
     const { ctx, ctx: { service: { manager } } } = this;
     const { appId, agentId, moduleFile } = ctx.query;
 
-    const data = await manager.getModules(appId, agentId, moduleFile);
+    const data = await manager.getModules(appId, agentId, moduleFile, { fromCache: true });
 
     ctx.body = { ok: true, data };
   }
