@@ -49,13 +49,20 @@ class TeamController extends Controller {
     const { appId, userId: invitedUser } = ctx.request.body;
     const { userId: currentUserId } = ctx.user;
 
-    const user = await mysql.getUserByIdentity(invitedUser);
+    const [user, members] = await Promise.all([
+      mysql.getUserByIdentity(invitedUser),
+      mysql.getTeamMembersByAppId(appId),
+    ]);
     if (!user) {
       ctx.body = { ok: false, message: `用户 ${invitedUser} 不存在` };
       return;
     }
     if (user.id === currentUserId) {
       ctx.body = { ok: false, message: '您已经在团队中' };
+      return;
+    }
+    if (members.some(member => user.id === member.user)) {
+      ctx.body = { ok: false, message: `用户 ${user.name} 已在团队中` };
       return;
     }
 
