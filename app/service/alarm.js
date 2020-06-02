@@ -44,7 +44,7 @@ class AlarmService extends Service {
 
     const { totalContacts, userMap } = await this.getTotalContacts(appId);
     if (!totalContacts.includes(userId)) {
-      ctx.body = { ok: false, message: `用户 ${userMap[userId] && userMap[userId].name || userId} 不在此应用成员列表中` };
+      ctx.body = { ok: false, message: `用户 ${userMap[userId] && userMap[userId].nick || userId} 不在此应用成员列表中` };
       return false;
     }
     return true;

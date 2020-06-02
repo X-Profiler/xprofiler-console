@@ -25,7 +25,7 @@ class AppController extends Controller {
       const { id: appId, name: appName, owner } = app;
       return {
         appId, appName,
-        ownerInfo: users[owner] && users[owner].name || 'Unknown',
+        ownerInfo: users[owner] && users[owner].nick || 'Unknown',
       };
     });
 

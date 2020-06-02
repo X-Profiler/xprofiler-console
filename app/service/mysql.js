@@ -22,9 +22,9 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
 
-  saveUser(name, pass, identity, mail) {
-    const sql = 'INSERT INTO user (name, pass, identity, mail) VALUES (?, ?, ?, ?)';
-    const params = [name, pass, identity, mail];
+  saveUser(name, nick, pass, identity, mail) {
+    const sql = 'INSERT INTO user (name, nick, pass, identity, mail) VALUES (?, ?, ?, ?, ?)';
+    const params = [name, nick, pass, identity, mail];
     return this.consoleQuery(sql, params);
   }
 

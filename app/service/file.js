@@ -5,7 +5,7 @@ const Service = require('egg').Service;
 
 class FileService extends Service {
   async filterFile(query, func) {
-    const { ctx: { service: { mysql } } } = this;
+    const { ctx, ctx: { service: { mysql } } } = this;
     const { appId, filterType, currentPage, pageSize } = query;
 
     // get files
@@ -18,10 +18,7 @@ class FileService extends Service {
 
     // get users
     let users = Array.from(new Set(list.map(item => item.user)));
-    users = (await mysql.getUserByUserIds(users)).reduce((users, user) => {
-      users[user.id] = user;
-      return users;
-    }, {});
+    users = await ctx.getUserMap(users);
     return { list, count, users };
   }
 
@@ -44,7 +41,7 @@ class FileService extends Service {
       } = item;
       return {
         fileId, fileType, file, agent, status, favor,
-        creator: users[creator] ? users[creator].name : creator,
+        creator: users[creator] ? users[creator].nick : creator,
         time: moment(gm_create).format('YYYY-MM-DD HH:mm:ss'),
         basename: storage ? modifyFileName(storage) : modifyFileName(file),
       };
@@ -77,7 +74,7 @@ class FileService extends Service {
       } = item;
       return {
         fileId, coreFile, executableFile, agent, status, favor, executableStatus,
-        creator: users[creator] ? users[creator].name : creator,
+        creator: users[creator] ? users[creator].nick : creator,
         fileType: 'core',
         time: moment(gm_create).format('YYYY-MM-DD HH:mm:ss'),
         basename: fileStorage ? modifyFileName(fileStorage) : modifyFileName(coreFile),

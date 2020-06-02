@@ -37,8 +37,8 @@ class TeamController extends Controller {
         item.userInfo = 'Unknown';
         return;
       }
-      const { name, identity } = user;
-      item.userInfo = `${name} (${identity})`;
+      const { nick, identity } = user;
+      item.userInfo = `${nick} (${identity})`;
     });
 
     ctx.body = { ok: true, data: { list, currentUserId } };

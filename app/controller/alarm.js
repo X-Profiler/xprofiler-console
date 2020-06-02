@@ -138,8 +138,8 @@ class AlarmController extends Controller {
     ctx.body = {
       ok: true,
       data: {
-        contacts: contacts.map(({ user: userId }) => ({ userId, userInfo: userMap[userId] && userMap[userId].name })),
-        remainMembers: remainMembers.map(userId => ({ userId, userInfo: userMap[userId] && userMap[userId].name })),
+        contacts: contacts.map(({ user: userId }) => ({ userId, userInfo: userMap[userId] && userMap[userId].nick })),
+        remainMembers: remainMembers.map(userId => ({ userId, userInfo: userMap[userId] && userMap[userId].nick })),
       },
     };
   }
