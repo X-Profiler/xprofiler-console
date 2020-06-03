@@ -28,26 +28,37 @@ class OverviewController extends Controller {
 
     // get risk count
     let riskCount;
+    let riskCountAgentId;
     if (instanceCount) {
-      if (instanceCount === 0) {
-        riskCount = 0;
-      } else {
-        const { agentId } = clients[0];
+      const riskCounts = (await pMap(clients, async ({ agentId }) => {
         const { files } = await manager.getFiles(appId, agentId, 'package', { fromCache: true });
         if (!Array.isArray(files)) {
-          riskCount = '-';
-        } else if (files.every(file => !file.risk)) {
-          riskCount = '-';
-        } else {
-          riskCount = files.reduce((total, fileInfo) => {
+          return;
+        }
+
+        if (files.every(file => !file.risk)) {
+          return;
+        }
+
+        return {
+          riskCount: files.reduce((total, fileInfo) => {
             const { vulnerabilities: { high, critical } } = fileInfo.risk;
             return (total += (Number(high) + Number(critical)));
-          }, 0);
-        }
+          }, 0),
+          agentId,
+        };
+      }, { concurrency: 2 })).filter(item => item);
+
+      riskCounts.sort((o, n) => (o.riskCount < n.riskCount ? 1 : -1));
+      if (!riskCounts.length) {
+        riskCount = '-';
+      } else {
+        riskCount = riskCounts[0].riskCount;
+        riskCountAgentId = riskCounts[0].agentId;
       }
     }
 
-    const data = { instanceCount, alarmCount, riskCount };
+    const data = { instanceCount, alarmCount, riskCount, riskCountAgentId };
 
     ctx.body = { ok: true, data };
   }
