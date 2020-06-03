@@ -93,6 +93,8 @@ class ProcessController extends Controller {
 
     if (!data.list.length) {
       data.nodes = processes;
+    } else {
+      data.list.sort();
     }
 
     ctx.body = { ok: true, data };

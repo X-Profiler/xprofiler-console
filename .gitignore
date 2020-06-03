@@ -4,7 +4,7 @@ yarn-error.log
 node_modules/
 package-lock.json
 yarn.lock
-coverage/
+coverage/*
 .idea/
 run/
 .DS_Store
@@ -14,4 +14,4 @@ typings/
 .nyc_output/
 *.local.js
 env
-profiler
+profiler/*
