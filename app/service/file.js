@@ -6,15 +6,12 @@ const Service = require('egg').Service;
 class FileService extends Service {
   async filterFile(query, func) {
     const { ctx, ctx: { service: { mysql } } } = this;
-    const { appId, filterType, currentPage, pageSize } = query;
+    const { appId, filterType } = query;
 
     // get files
     const files = await mysql[func](appId, filterType);
-    const start = (currentPage - 1) * pageSize;
-    const end = currentPage * pageSize;
     const count = files.length;
-    const list = files
-      .filter((...args) => args[1] >= start && args[1] < end);
+    const list = files;
 
     // get users
     let users = Array.from(new Set(list.map(item => item.user)));
