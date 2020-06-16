@@ -142,7 +142,13 @@ class FileController extends Controller {
     ctx.set('content-disposition', `attachment;filename=${fileName}`);
     const pass = new PassThrough();
     const gunzip = zlib.createGunzip();
-    storage.downloadFile(fileName).pipe(gunzip).pipe(pass);
+    const downloadFileStream = storage.downloadFile(fileName);
+    if (typeof downloadFileStream.then === 'function') {
+      (await downloadFileStream).pipe(gunzip).pipe(pass);
+    } else {
+      downloadFileStream.pipe(gunzip).pipe(pass);
+    }
+
     ctx.body = pass;
   }
 
