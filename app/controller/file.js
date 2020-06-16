@@ -143,7 +143,7 @@ class FileController extends Controller {
     const pass = new PassThrough();
     const gunzip = zlib.createGunzip();
     const downloadFileStream = storage.downloadFile(fileName);
-    if (downloadFileStream.then) {
+    if (typeof downloadFileStream.then === 'function') {
       (await downloadFileStream).pipe(gunzip).pipe(pass);
     } else {
       downloadFileStream.pipe(gunzip).pipe(pass);
