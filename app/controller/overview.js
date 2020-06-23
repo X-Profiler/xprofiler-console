@@ -42,8 +42,12 @@ class OverviewController extends Controller {
 
         return {
           riskCount: files.reduce((total, fileInfo) => {
-            const { vulnerabilities: { high, critical } } = fileInfo.risk;
-            return (total += (Number(high) + Number(critical)));
+            if (fileInfo.risk && fileInfo.risk.vulnerabilities) {
+              const { vulnerabilities: { high, critical } } = fileInfo.risk;
+              return (total += (Number(high) + Number(critical)));
+            }
+
+            return total;
           }, 0),
           agentId,
         };
