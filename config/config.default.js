@@ -104,24 +104,32 @@ module.exports = appInfo => {
   config.uploadNoncePrefix = 'XTRANSIT_UPLOAD_NONCE::';
 
   const userConfig = {};
-
+  // sequelize
+  userConfig.sequelize = {
+    dialect: 'postgres',
+    database: 'patrolengine_patrolenginedb',
+    host: '10.19.162.225',
+    port: 7092,
+    username: 'postgres',
+    password: 'LhXQaSzD',
+  };
   // mysql
   userConfig.mysql = {
     app: true,
     agent: false,
     clients: {
       xprofiler_console: {
-        host: '',
+        host: '49.234.224.10',
         port: 3306,
-        user: '',
-        password: '',
+        user: 'postgres',
+        password: 'Abc123+++',
         database: 'xprofiler_console',
       },
       xprofiler_logs: {
-        host: '',
+        host: '49.234.224.10',
         port: 3306,
-        user: '',
-        password: '',
+        user: 'postgres',
+        password: 'Abc123+++',
         database: 'xprofiler_logs',
       },
     },
@@ -132,17 +140,17 @@ module.exports = appInfo => {
     client: {
       sentinels: null,
       port: 6379,
-      host: '',
-      password: '',
+      host: '127.0.0.1',
+      password: '123456',
       db: 0,
     },
   };
 
   // xtransit upload file
-  userConfig.xprofilerConsole = '';
+  userConfig.xprofilerConsole = 'http://127.0.0.1:8443';
 
   // xtransit manager
-  userConfig.xtransitManager = '';
+  userConfig.xtransitManager = 'http://127.0.0.1:8543';
 
   return {
     ...config,
