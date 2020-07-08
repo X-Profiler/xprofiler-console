@@ -3,12 +3,6 @@
 const Service = require('egg').Service;
 
 class MysqlService extends Service {
-  async newS() {
-    const sql = 'SELECT * FROM user';
-    const a = await this.consoleQuery(sql);
-    const b = await this.app.model.query('SELECT * FROM user', { raw: true, type: this.app.model.QueryTypes.SELECT });
-    return { a, b };
-  }
   consoleQuery(sql, params) {
     return this.app.model.query(sql, { replacements: params, type: this.app.model.QueryTypes.SELECT });
     // const { ctx: { app: { mysql } } } = this;
