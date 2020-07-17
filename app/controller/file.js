@@ -139,14 +139,17 @@ class FileController extends Controller {
     const { storage: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
 
     ctx.set('content-type', 'application/octet-stream');
+    ctx.set('content-encoding', 'gzip');
     ctx.set('content-disposition', `attachment;filename=${fileName}`);
     const pass = new PassThrough();
-    const gunzip = zlib.createGunzip();
+    // const gunzip = zlib.createGunzip();
     const downloadFileStream = storage.downloadFile(fileName);
     if (typeof downloadFileStream.then === 'function') {
-      (await downloadFileStream).pipe(gunzip).pipe(pass);
+      // (await downloadFileStream).pipe(gunzip).pipe(pass);
+      (await downloadFileStream).pipe(pass);
     } else {
-      downloadFileStream.pipe(gunzip).pipe(pass);
+      // downloadFileStream.pipe(gunzip).pipe(pass);
+      downloadFileStream.pipe(pass);
     }
 
     ctx.body = pass;

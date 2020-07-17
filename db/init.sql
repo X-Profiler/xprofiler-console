@@ -1,3 +1,5 @@
+-- xprofiler_console
+
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`(
   `id` INT UNSIGNED AUTO_INCREMENT COMMENT 'unique auto increment id',
