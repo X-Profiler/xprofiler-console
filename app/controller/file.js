@@ -1,6 +1,5 @@
 'use strict';
 
-const zlib = require('zlib');
 const { PassThrough } = require('stream');
 const pMap = require('p-map');
 const Controller = require('egg').Controller;
@@ -138,17 +137,17 @@ class FileController extends Controller {
     const { fileId, fileType } = ctx.query;
     const { storage: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
 
+    // set headers
     ctx.set('content-type', 'application/octet-stream');
     ctx.set('content-encoding', 'gzip');
     ctx.set('content-disposition', `attachment;filename=${fileName}`);
+
+    // create pass
     const pass = new PassThrough();
-    // const gunzip = zlib.createGunzip();
     const downloadFileStream = storage.downloadFile(fileName);
     if (typeof downloadFileStream.then === 'function') {
-      // (await downloadFileStream).pipe(gunzip).pipe(pass);
       (await downloadFileStream).pipe(pass);
     } else {
-      // downloadFileStream.pipe(gunzip).pipe(pass);
       downloadFileStream.pipe(pass);
     }
 
