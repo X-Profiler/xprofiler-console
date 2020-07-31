@@ -27,6 +27,10 @@ class ManagerService extends Service {
   }
 
   handleXtransitResponse(result) {
+    if (!result) {
+      return;
+    }
+
     const { ctx } = this;
     if (!result.ok) {
       ctx.logger.error(result.message);
