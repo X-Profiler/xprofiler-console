@@ -144,7 +144,10 @@ class SystemService extends Service {
         ];
         break;
       case 'nodeCountTrend':
-        keys = ['node_count'];
+        keys = [{
+          key: 'node_count',
+          handle: value => Math.round(value),
+        }];
         break;
       case 'osGcTrend':
         keys = [

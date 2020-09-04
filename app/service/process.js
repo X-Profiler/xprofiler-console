@@ -49,7 +49,10 @@ class ProcessService extends Service {
         ];
         break;
       case 'uvTrend':
-        keys = ['active_handles'];
+        keys = [{
+          key: 'active_handles',
+          handle: value => Math.round(value),
+        }];
         break;
       case 'qpsTrend':
         keys = [{
@@ -60,13 +63,20 @@ class ProcessService extends Service {
       case 'timerTrend':
         keys = [{
           key: 'active_timer_handles', label: 'active_timers',
+          handle: value => Math.round(value),
         }];
         break;
       case 'tcpTrend':
-        keys = ['active_tcp_handles'];
+        keys = [{
+          key: 'active_tcp_handles',
+          handle: value => Math.round(value),
+        }];
         break;
       case 'udpTrend':
-        keys = ['active_udp_handles'];
+        keys = [{
+          key: 'active_udp_handles',
+          handle: value => Math.round(value),
+        }];
         break;
       default:
         break;

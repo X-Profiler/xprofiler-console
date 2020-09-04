@@ -27,6 +27,30 @@ class MetricService extends Service {
     return list;
   }
 
+  getAverageMetric(metrics, key) {
+    const { ctx: { app } } = this;
+
+    let value = 0;
+    for (const metric of metrics) {
+      if (!metric) {
+        continue;
+      }
+
+      const metricValue = metric[key];
+
+      // disks
+      if (typeof metricValue === 'object') {
+        return metricValue;
+      }
+
+      // common metric value
+      if (app.isNumber(metricValue)) {
+        value += metric[key] || 0;
+      }
+    }
+    return value / metrics.length;
+  }
+
   handleTrends(trends, keys, duration) {
     if (!trends.length || !keys.length) {
       return [];
@@ -45,6 +69,7 @@ class MetricService extends Service {
       const time = moment(trend.log_time).format(formatter);
       trendMap[time] = trend;
     }
+
     const validInterval = 60 * 1000;
     for (let time = start; time < end; time += 60 * 1000) {
       const timeKey = moment(time).format(formatter);
@@ -58,22 +83,40 @@ class MetricService extends Service {
       }
     }
 
+    for (let time = start; time < end; time += interval) {
+      const timeKey = moment(time).format(formatter);
+      if (!trendMap[timeKey]) {
+        continue;
+      }
+      const duration = [];
+      for (let index = 0; index < interval / validInterval; index++) {
+        const timeKeyTmp = moment(time + index * validInterval).format(formatter);
+        const trendTmp = trendMap[timeKeyTmp];
+        if (!trendTmp) {
+          duration.push(null);
+        } else {
+          duration.push(trendTmp);
+        }
+      }
+      trendMap[timeKey] = duration;
+    }
+
     const results = [];
     for (let time = start; time < end; time += interval) {
       const data = { time };
       const timeKey = moment(time).format(formatter);
-      const trend = trendMap[timeKey];
-      if (trend) {
+      const metrics = trendMap[timeKey];
+      if (metrics && metrics.some(metric => metric)) {
         keys.forEach(keyObj => {
           if (typeof keyObj === 'string') {
-            data[keyObj] = trend[keyObj];
+            data[keyObj] = this.getAverageMetric(metrics, keyObj);
           } else {
             const { key, label, handle } = keyObj;
             const showLabel = label || key;
             if (typeof handle === 'function') {
-              data[showLabel] = handle(trend[key]);
+              data[showLabel] = handle(this.getAverageMetric(metrics, key));
             } else {
-              data[showLabel] = trend[key];
+              data[showLabel] = this.getAverageMetric(metrics, key);
             }
           }
         });
