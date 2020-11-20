@@ -29,11 +29,11 @@ class OverviewService extends Service {
     return { maxPid, maxData };
   }
 
-  async getLatestProcessData(appId, agentId) {
+  async getLatestProcessData(appId, agentId, period = 3, historical = false) {
     const { ctx: { service: { process, manager } } } = this;
 
     // get pids
-    let list = await process.getDataByPeriod(appId, agentId, 3);
+    let list = await process.getDataByPeriod(appId, agentId, period);
     const pids = Array.from(new Set(list.map(item => item.pid)));
     if (!pids.length) {
       return;
@@ -44,7 +44,7 @@ class OverviewService extends Service {
     if (!avlivePids) {
       return;
     }
-    list = list.filter(item => avlivePids[item.pid]);
+    list = list.filter(item => (historical ? !avlivePids[item.pid] : avlivePids[item.pid]));
     const latestPidMap = {};
     list.forEach(item => {
       const { pid, log_time } = item;

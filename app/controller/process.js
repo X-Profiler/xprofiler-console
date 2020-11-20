@@ -35,8 +35,9 @@ class ProcessController extends Controller {
 
     const tasks = [];
     tasks.push(overview.getLatestProcessData(appId, agentId));
+    tasks.push(overview.getLatestProcessData(appId, agentId, 60 * 24, true));
     tasks.push(ctx.handleXtransitResponse('getAgentNodeProcesses', appId, agentId));
-    let [logs, processes] = await Promise.all(tasks);
+    let [logs, all, processes] = await Promise.all(tasks);
     if (processes === false) {
       return;
     }
@@ -45,24 +46,22 @@ class ProcessController extends Controller {
       .map(process => {
         const [pid, command] = process.split('\u0000');
         if (pid && command) {
-          return ({ pid, command });
+          return ({ pid: Number(pid), command });
         }
       })
       .filter(process => process);
-
 
     const data = { list: [], nodes: [] };
 
     if (!logs) {
       data.nodes = processes;
     } else {
-      for (const [pid, log] of Object.entries(logs)) {
+      const checked = Object.entries(logs).concat(Object.entries(all));
+      for (const [pid, log] of checked) {
         const process = processes.filter(process => Number(process.pid) === Number(pid))[0];
-        if (!process) {
-          continue;
-        }
         const {
           uptime,
+          log_time,
           cpu_60,
           heap_used_percent,
           gc_time_during_last_record,
@@ -75,8 +74,9 @@ class ProcessController extends Controller {
 
         const proc = {
           pid,
-          cmd: process.command,
-          startTime: Date.now() - uptime * 1000,
+          cmd: process ? process.command : undefined,
+          startTime: (process ? Date.now() : new Date(log_time).getTime()) - uptime * 1000,
+          updateTime: process ? undefined : new Date(log_time).getTime(),
           cpuUsage: cpu_60.toFixed(2),
           heapUsage: heap_used_percent.toFixed(2),
           gcUsage: (gc_time_during_last_record / (60 * 1000) * 100).toFixed(2),
