@@ -28,6 +28,12 @@ jobs:
       with:
         mysql root password: 'root'
 
+    # https://github.com/marketplace/actions/redis-server-in-github-actions
+    - name: Redis Server in GitHub Actions
+      uses: supercharge/redis-github-action@1.1.0
+      with:
+        redis-version: 5
+
     - name: Checkout Git Source
       uses: actions/checkout@v2
 
