@@ -26,8 +26,7 @@ jobs:
     - name: Setup MySQL
       uses: mirromutth/mysql-action@v1.1
       with:
-        mysql user: 'developer'
-        mysql password: developer_pwd
+        mysql root password: 'root'
 
     - name: Checkout Git Source
       uses: actions/checkout@v2
