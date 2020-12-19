@@ -22,7 +22,6 @@
     "autod": "^3.1.0",
     "autod-egg": "^1.1.0",
     "egg-bin": "^4.14.1",
-    "egg-ci": "^1.15.0",
     "egg-mock": "^4.0.0",
     "eslint": "^7.0.0",
     "eslint-config-egg": "^8.0.1"
@@ -42,14 +41,6 @@
     "lint": "eslint app config lib test --fix",
     "ci": "npm run lint && npm run cov",
     "autod": "autod"
-  },
-  "ci": {
-    "version": "10, 12, 14",
-    "type": "github",
-    "os": {
-      "github": "linux"
-    },
-    "services": "redis-server, mysql"
   },
   "repository": {
     "type": "git",
