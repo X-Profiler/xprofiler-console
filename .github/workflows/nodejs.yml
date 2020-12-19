@@ -21,13 +21,11 @@ jobs:
         node-version: [10, 12, 14]
         os: [ubuntu-latest]
 
-    services:
-      mariadb:
-        image: mariadb:latest
-        ports:
-          - 3306
-
     steps:
+    # https://github.com/marketplace/actions/setup-mysql
+    - name: Setup MySQL
+      uses: mirromutth/mysql-action@v1.1
+
     - name: Checkout Git Source
       uses: actions/checkout@v2
 
