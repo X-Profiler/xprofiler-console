@@ -35,19 +35,25 @@
     "stop": "egg-scripts stop --title=egg-server-xprofiler-console",
     "dev": "egg-bin dev --port=8443",
     "debug": "egg-bin debug",
+    "init-test-db": "db/init_unittest_db.sh",
     "test": "npm run lint -- --fix && npm run test-local",
-    "test-local": "egg-bin test",
-    "cov": "egg-bin cov",
+    "test-local": "npm run init-test-db && egg-bin test",
+    "cov": "npm run init-test-db && egg-bin cov",
     "lint": "eslint app config lib test --fix",
     "ci": "npm run lint && npm run cov",
     "autod": "autod"
   },
   "ci": {
-    "version": "10"
+    "version": "10, 12, 14",
+    "type": "github",
+    "os": {
+      "github": "linux, windows, macos"
+    },
+    "services": "redis-server, mysql"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/X-Profiler/xprofiler-console.git"
   },
   "author": "yeekwanvong@gmail.com",
   "license": "BSD-2-Clause"
