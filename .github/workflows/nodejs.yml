@@ -25,6 +25,9 @@ jobs:
     # https://github.com/marketplace/actions/setup-mysql
     - name: Setup MySQL
       uses: mirromutth/mysql-action@v1.1
+      with:
+        mysql user: 'developer'
+        mysql password: developer_pwd
 
     - name: Checkout Git Source
       uses: actions/checkout@v2
