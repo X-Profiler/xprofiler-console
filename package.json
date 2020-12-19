@@ -47,7 +47,7 @@
     "version": "10, 12, 14",
     "type": "github",
     "os": {
-      "github": "linux, windows, macos"
+      "github": "linux"
     },
     "services": "redis-server, mysql"
   },

@@ -19,7 +19,13 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [10, 12, 14]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
 
     steps:
     - name: Checkout Git Source
