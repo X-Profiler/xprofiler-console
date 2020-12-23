@@ -3,17 +3,19 @@
 const { app, assert } = require('egg-mock/bootstrap');
 
 describe('test/app/controller/home.test.js', () => {
-  it('should assert', () => {
-    const pkg = require('../../../package.json');
-    assert(app.config.keys.startsWith(pkg.name));
-
-    // const ctx = app.mockContext({});
-    // yield ctx.service.xx();
+  it('should block anonymous user', async () => {
+    const res = await app.httpRequest()
+      .get('/');
+    assert(res.status === 401);
+    assert(res.text === 'access denied');
   });
 
-  it('should GET /', () => {
-    return app.httpRequest()
-      .get('/')
-      .expect(200);
+  it('should GET /', async () => {
+    await app.mockUser();
+    const res = await app.httpRequest()
+      .get('/');
+    assert(res.status === 200);
+    assert(res.text.includes('<title>Easy-Monitor</title>'));
+    assert(res.headers['content-type'] === 'text/html; charset=utf-8');
   });
 });
