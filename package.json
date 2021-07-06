@@ -30,7 +30,7 @@
     "node": ">=10.0.0"
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=egg-server-xprofiler-console --port=7443",
+    "start": "egg-scripts start --daemon --title=egg-server-xprofiler-console --port=7443 --workers=4",
     "stop": "egg-scripts stop --title=egg-server-xprofiler-console",
     "dev": "egg-bin dev --port=8443",
     "debug": "egg-bin debug",
