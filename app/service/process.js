@@ -24,7 +24,10 @@ class ProcessService extends Service {
     let limit = 0;
     switch (type) {
       case 'heapTrend':
-        keys = ['heap_total', 'heap_used', 'rss'];
+        keys = [
+          'heap_total', 'heap_used', 'rss',
+          { key: 'amount_of_external_allocated_memory', label: 'external' },
+        ];
         limit = latestLog.heap_limit;
         break;
       case 'cpuTrend':
