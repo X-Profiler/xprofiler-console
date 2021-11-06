@@ -4,10 +4,12 @@ const Controller = require('egg').Controller;
 
 class UserController extends Controller {
   async index() {
-    const { ctx } = this;
+    const { ctx, ctx: { service: { mysql } } } = this;
     const { nick, userId } = ctx.user;
 
-    ctx.body = { ok: true, data: { name: nick, id: userId } };
+    const [{ identity }] = await mysql.getUserByUserIds([userId]);
+
+    ctx.body = { ok: true, data: { name: nick, id: identity } };
   }
 }
 
