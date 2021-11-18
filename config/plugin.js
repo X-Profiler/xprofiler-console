@@ -20,6 +20,11 @@ module.exports = {
     package: 'egg-redis',
   },
 
+  remoteConfig: {
+    enable: true,
+    package: 'egg-remote-config',
+  },
+
   // xprofiler plugin
   xauth: {
     enable: true,
