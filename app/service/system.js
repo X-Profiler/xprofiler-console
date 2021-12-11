@@ -25,6 +25,7 @@ const systemLogParts = [
     ],
     position: 0,
     flag: 'system_log',
+    necessary: true,
   },
   {
     keys: [
@@ -48,6 +49,7 @@ const systemLogParts = [
     ],
     position: 1,
     flag: 'xprofiler_log',
+    necessary: false,
   },
 ];
 
@@ -90,7 +92,7 @@ class SystemService extends Service {
 
     const list = Object.entries(logMap)
       .map(([, log]) => log)
-      .filter(log => checkFlags.every(flag => log[flag]));
+      .filter(log => checkFlags.every(flag => (flag.necessary ? log[flag] : true)));
 
     list.forEach(log => {
       log.used_memory = log.total_memory - log.free_memory;
