@@ -19,9 +19,10 @@ class ProcessService extends Service {
       return { list: [] };
     }
 
-    const { ctx: { service: { metric } } } = this;
+    const { app, ctx: { service: { metric } } } = this;
     let keys = [];
     let limit = 0;
+    let extra;
     switch (type) {
       case 'heapTrend':
         keys = [
@@ -29,6 +30,7 @@ class ProcessService extends Service {
           { key: 'amount_of_external_allocated_memory', label: 'external' },
         ];
         limit = latestLog.heap_limit;
+        extra = app.formatSize(limit);
         break;
       case 'cpuTrend':
         keys = ['cpu_now', 'cpu_15', 'cpu_30', 'cpu_60'];
@@ -86,7 +88,7 @@ class ProcessService extends Service {
     }
 
     const list = metric.handleTrends(trends, keys, duration);
-    return { list, limit };
+    return { list, limit, extra };
   }
 }
 
