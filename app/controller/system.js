@@ -54,7 +54,7 @@ class SystemController extends Controller {
     const { appId, agentId, trendType, duration } = ctx.query;
 
     const period = duration * 60;
-    const trends = await system.getDataByPeriod(appId, agentId, period);
+    const trends = await system.getDataByPeriod(appId, agentId, period, false);
     const data = system.handleTrends(trends, trendType, duration);
 
     ctx.body = { ok: true, data };

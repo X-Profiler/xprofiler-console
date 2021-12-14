@@ -102,9 +102,9 @@ class OverviewController extends Controller {
       if (log) {
         switch (type) {
           case 'processCpuUsage': {
-            const { maxPid, maxData } = overview.comparePidsInAgent(log, 'cpu_60');
-            data.status = overview.getStatus(maxData);
-            data.title = `${Number(maxData.toFixed(2))}%`;
+            const { maxPid, averageData } = overview.comparePidsInAgent(log, 'cpu_60');
+            data.status = overview.getStatus(averageData);
+            data.title = `${Number(averageData.toFixed(2))}%`;
             data.pid = maxPid;
           }
             break;

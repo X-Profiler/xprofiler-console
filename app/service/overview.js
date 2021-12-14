@@ -14,8 +14,13 @@ class OverviewService extends Service {
 
   comparePidsInAgent(log, key) {
     let maxPid;
-    let maxData;
+    let maxData = 0;
+    let averageData = 0;
+    let total = 0;
     for (const [pid, { [key]: data }] of Object.entries(log)) {
+      averageData += data;
+      total++;
+
       if (!maxPid) {
         maxPid = pid;
         maxData = data;
@@ -26,7 +31,10 @@ class OverviewService extends Service {
         maxData = data;
       }
     }
-    return { maxPid, maxData };
+
+    averageData = total ? averageData / total : averageData;
+
+    return { maxPid, maxData, averageData };
   }
 
   async getLatestProcessData(appId, agentId, period = 3, historical = false) {

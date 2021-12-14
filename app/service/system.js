@@ -75,7 +75,7 @@ class SystemService extends Service {
     return Object.assign({}, ...logs);
   }
 
-  async getDataByPeriod(appId, agentId, period) {
+  async getDataByPeriod(appId, agentId, period, strict = true) {
     const { ctx: { service: { metric } } } = this;
     const logs = await metric.getDataByPeriod(appId, agentId, 'osinfo_', period);
 
@@ -92,7 +92,7 @@ class SystemService extends Service {
 
     const list = Object.entries(logMap)
       .map(([, log]) => log)
-      .filter(log => checkFlags.every(flag => (flag.necessary ? log[flag] : true)));
+      .filter(log => checkFlags.every(flag => (strict ? log[flag] : flag.necessary ? log[flag] : true)));
 
     list.forEach(log => {
       log.used_memory = log.total_memory - log.free_memory;
