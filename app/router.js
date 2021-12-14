@@ -69,6 +69,9 @@ module.exports = app => {
   router.get('/dashboard/devtools-new', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType', 'selectedTab']), 'devtools.newDevtools');
   router.get('/dashboard/devtools-old', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType', 'selectedTab']), 'devtools.oldDevtools');
 
+  // thirdparty analytics
+  router.get('/dashboard/speedscope', userRequired, fileAccessibleRequired, checkParams(['fileId', 'fileType', 'downloadPath']), 'thirdparty.speedscope');
+
   // upload file
   router.post('/xapi/upload_file', userRequired, appMemberRequired, checkParams(['fileType']), 'upload.fromConsole');
   router.post('/xapi/upload_from_xtransit', checkParams(['fileId', 'fileType', 'nonce', 'timestamp', 'signature']), 'upload.fromXtransit');
