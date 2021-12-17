@@ -108,11 +108,19 @@ module.exports = () => {
         checks = [{ fileId, fileType }];
       }
 
+      const coreTypes = {
+        core: 'file_storage',
+        executable: 'node_storage',
+      };
+
       const filesInfo = await pMap(checks, async ({ fileId, fileType }) => {
-        if (fileType !== 'core') {
-          return await mysql.getFileByIdAndType(fileId, fileType);
+        if (coreTypes[fileType]) {
+          const file = await mysql.getCoredumpById(fileId);
+          return file && Object.assign(file, { type: fileType, storageKey: coreTypes[fileType] });
         }
-        return await mysql.getCoredumpById(fileId);
+
+        const file = await mysql.getFileByIdAndType(fileId, fileType);
+        return file && Object.assign(file, { storageKey: 'storage' });
 
       }, { concurrency: 2 });
 
@@ -125,11 +133,7 @@ module.exports = () => {
       const appMemberAuthList = await pMap(filesInfo, async file => {
         const [owner, member] = await ctx.checkAppMember(file.app, userId);
         if (owner || member) {
-          if (fileType !== 'core') {
-            ctx.file[ctx.createFileKey(file.id, file.type)] = file;
-          } else {
-            ctx.file[ctx.createFileKey(file.id, 'core')] = file;
-          }
+          ctx.file[ctx.createFileKey(file.id, file.type)] = file;
           return true;
         }
         return false;

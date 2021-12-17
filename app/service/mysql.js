@@ -129,15 +129,26 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
 
-  updateFileStatusById(fileId, status, token = '', storage) {
+  updateFileStatusById(fileId, fileType, status, token = '', storage) {
     let sql = '';
     let params = [];
     if (storage) {
-      sql = 'UPDATE files SET status = ?, token = ?, storage = ? WHERE id = ?';
-      params = [status, token, storage, fileId];
+      if (fileType === 'core') {
+        const [fileStoragem, nodeStorage] = storage.split('\u0000');
+        sql = 'UPDATE coredumps SET file_status = ?, file_storage = ?, node_status = ?, node_storage = ?, token = ? WHERE id = ?';
+        params = [status, fileStoragem, status, nodeStorage, token, fileId];
+      } else {
+        sql = 'UPDATE files SET status = ?, token = ?, storage = ? WHERE id = ?';
+        params = [status, token, storage, fileId];
+      }
     } else {
-      sql = 'UPDATE files SET status = ?, token = ? WHERE id = ?';
-      params = [status, token, fileId];
+      if (fileType === 'core') {
+        sql = 'UPDATE coredumps SET file_status = ?, node_status = ?, token = ? WHERE id = ?';
+        params = [status, status, token, fileId];
+      } else {
+        sql = 'UPDATE files SET status = ?, token = ? WHERE id = ?';
+        params = [status, token, fileId];
+      }
     }
     return this.consoleQuery(sql, params);
   }

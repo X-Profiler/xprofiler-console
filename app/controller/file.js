@@ -36,8 +36,13 @@ class FileController extends Controller {
 
     const list = await pMap(files, async file => {
       const { fileId, fileType, index } = file;
-      const { app, agent, status, file: filePath, gm_create } = ctx.file[ctx.createFileKey(fileId, fileType)];
-      const result = { fileId, fileType, status, index };
+      const { app, agent, status, file_status, file: filePath, gm_create } = ctx.file[ctx.createFileKey(fileId, fileType)];
+
+      let fileStatus = status;
+      if (fileType === 'core') {
+        fileStatus = file_status;
+      }
+      const result = { fileId, fileType, status: fileStatus, index };
 
       // file created
       if (status !== 0) {
@@ -59,13 +64,13 @@ class FileController extends Controller {
         }
         const { exists } = fileStatus;
         if (exists) {
-          await mysql.updateFileStatusById(fileId, 1);
+          await mysql.updateFileStatusById(fileId, fileType, 1);
           result.status = 1;
         } else {
           result.status = 0;
         }
       } else {
-        await mysql.updateFileStatusById(fileId, 1);
+        await mysql.updateFileStatusById(fileId, fileType, 1);
         result.status = 1;
       }
 
@@ -75,31 +80,54 @@ class FileController extends Controller {
     ctx.body = { ok: true, data: { list } };
   }
 
+  async updateFileStatusByIdWhenFailed(fileId, fileType, storage) {
+    const { ctx: { service: { mysql } } } = this;
+    if (storage) {
+      await mysql.updateFileStatusById(fileId, fileType, 3);
+    } else {
+      await mysql.updateFileStatusById(fileId, fileType, 1);
+    }
+  }
+
   async transferFile() {
     const { ctx, ctx: { app, service: { mysql } } } = this;
     const { fileId, fileType } = ctx.request.body;
-    const { app: appId, agent: agentId, file: filePath } = ctx.file[ctx.createFileKey(fileId, fileType)];
+    const fileContent = ctx.file[ctx.createFileKey(fileId, fileType)];
+    const { app: appId, agent: agentId, file, storageKey, [storageKey]: storagePath } = fileContent;
+
+    const isCoreFile = fileType === 'core';
+
+    let filePath = file;
+    if (isCoreFile) {
+      const { node } = fileContent;
+      try {
+        const { executable_path } = JSON.parse(node);
+        filePath += `::${executable_path}`;
+      } catch (err) {
+        ctx.logger.error(`[transferFile] parse executable path failed: ${fileContent.node}`);
+      }
+    }
 
     // create token
     const token = app.createAppSecret(fileId, fileType);
-    await mysql.updateFileStatusById(fileId, 2, token);
+    await mysql.updateFileStatusById(fileId, fileType, 2, token);
 
     // notification
     const { xprofilerConsole: server } = app.config;
     const transferResult = await ctx.handleXtransitResponse('transferFile', appId, agentId,
       fileId, fileType, filePath, server, token);
     if (transferResult === false) {
-      await mysql.updateFileStatusById(fileId, 1);
+      await this.updateFileStatusByIdWhenFailed(fileId, fileType, storagePath);
       return;
     }
 
     try {
       const { storage } = JSON.parse(transferResult);
-      await mysql.updateFileStatusById(fileId, 3, '', storage);
+      await mysql.updateFileStatusById(fileId, fileType, 3, '', storage);
     } catch (err) {
       ctx.logger.error(`parse transfer result failed: ${err}, raw: ${transferResult}`);
       ctx.body = { ok: false, message: '下发转储命令失败' };
-      await mysql.updateFileStatusById(fileId, 1);
+      await this.updateFileStatusByIdWhenFailed(fileId, fileType, storagePath);
       return;
     }
 
@@ -135,7 +163,11 @@ class FileController extends Controller {
   async downloadFile() {
     const { ctx, ctx: { app: { storage } } } = this;
     const { fileId, fileType } = ctx.query;
-    const { storage: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
+    const { storageKey, [storageKey]: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
+
+    if (!fileName) {
+      return (ctx.body = { ok: false, message: '文件尚未转储' });
+    }
 
     // set headers
     ctx.set('content-type', 'application/octet-stream');

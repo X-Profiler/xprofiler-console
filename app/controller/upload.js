@@ -13,6 +13,8 @@ class UploadController extends Controller {
     const { ctx, ctx: { app: { storage, sign, redis, config: { uploadNoncePrefix } }, service: { mysql } } } = this;
     const { fileId, fileType, nonce, timestamp, signature } = ctx.query;
 
+    const isCoreFile = fileType === 'core';
+
     // check request time
     const expiredTime = 60;
     if (Date.now() - timestamp > expiredTime * 1000) {
@@ -28,13 +30,19 @@ class UploadController extends Controller {
     await redis.expire(nonceKey, expiredTime);
 
     // check file exists
-    const file = await mysql.getFileByIdAndType(fileId, fileType);
+    let file;
+    if (isCoreFile) {
+      file = await mysql.getCoredumpById(fileId);
+    } else {
+      file = await mysql.getFileByIdAndType(fileId, fileType);
+    }
+
     if (!file) {
       return (ctx.body = { ok: false, message: '文件不存在' });
     }
 
     // check signature
-    const { agent: agentId, file: fileName, token } = file;
+    const { agent: agentId, file: fileName, token, node } = file;
     if (!signature) {
       return (ctx.body = { ok: false, message: '需要签名' });
     }
@@ -42,26 +50,60 @@ class UploadController extends Controller {
       return (ctx.body = { ok: false, message: '签名错误' });
     }
 
+    // need store files
+    const needStore = [];
+    if (isCoreFile) {
+      const [coreFile, nodeFile] = ctx.request.files;
+      let nodeFileName = 'node';
+      try {
+        const { alinode, version } = JSON.parse(node);
+        nodeFileName = alinode ? `alinode-v${version}` : `node-v${version}`;
+      } catch (err) {
+        ctx.logger.error(`[fromXtransit] parse executable failed: ${node}`);
+      }
+
+      needStore.push(
+        { fileName, fileContent: coreFile },
+        { fileName: nodeFileName, fileContent: nodeFile }
+      );
+    } else {
+      needStore.push({
+        fileName,
+        fileContent: ctx.request.files[0],
+      });
+    }
+
     // check upload file
-    const uploadFile = ctx.request.files[0];
-    if (!uploadFile) {
-      return (ctx.body = { ok: false, message: '上传文件不存在' });
+    for (const uploadFile of needStore) {
+      if (!uploadFile.fileContent) {
+        return (ctx.body = { ok: false, message: '上传文件不存在' });
+      }
     }
 
     // delete old file storage
-    if (file.storage) {
+    if (isCoreFile) {
+      const { file_storage, node_storage } = file;
+      file_storage && await storage.deleteFile(file.file_storage);
+      node_storage && await storage.deleteFile(file.node_storage);
+    } else if (file.storage) {
       await storage.deleteFile(file.storage);
     }
 
-    // get upload file name
-    const uploadName = ctx.app.modifyFileName(fileName);
-    const uploadFileName = `u-${uuidv4()}-u-${uploadName}`;
+    // upload file
+    const uploadFileNameList = [];
+    for (const { fileName, fileContent } of needStore) {
+      // get upload file name
+      const uploadName = ctx.app.modifyFileName(fileName);
+      const uploadFileName = `u-${uuidv4()}-u-${uploadName}`;
 
-    // save file
-    await storage.saveFile(uploadFileName, fs.createReadStream(uploadFile.filepath));
-    await unlink(uploadFile.filepath);
+      // save file
+      await storage.saveFile(uploadFileName, fs.createReadStream(fileContent.filepath));
+      await unlink(fileContent.filepath);
 
-    ctx.body = { ok: true, data: { storage: uploadFileName } };
+      uploadFileNameList.push(uploadFileName);
+    }
+
+    ctx.body = { ok: true, data: { storage: uploadFileNameList.join('\u0000') } };
   }
 
   async fromConsole() {
