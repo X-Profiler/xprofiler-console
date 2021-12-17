@@ -33,6 +33,15 @@ module.exports = {
       map[user.id] = user;
       return map;
     }, {});
+
+    const systemUser = 999999;
+    if (userIds.includes(systemUser)) {
+      users[systemUser] = {
+        id: systemUser,
+        name: 'System',
+        nick: 'System',
+      };
+    }
     return users;
   },
 

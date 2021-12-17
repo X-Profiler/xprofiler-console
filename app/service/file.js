@@ -48,7 +48,7 @@ class FileService extends Service {
   }
 
   async getCoredumpFiles(query) {
-    const { ctx: { app: { modifyFileName } } } = this;
+    const { ctx: { logger, app: { modifyFileName } } } = this;
     const { filterType } = query;
     if (filterType !== 'all' && filterType !== 'favor' && filterType !== 'core') {
       return { list: [], count: 0 };
@@ -61,7 +61,7 @@ class FileService extends Service {
         file: coreFile,
         file_storage: fileStorage,
         file_status: status,
-        node: executableFile,
+        node,
         node_status: executableStatus,
         user: creator,
         gm_create,
@@ -69,6 +69,18 @@ class FileService extends Service {
         favor,
         id: fileId,
       } = item;
+
+      let executableFile = node;
+      if (agent !== 'upload') {
+        try {
+          const { alinode, version } = JSON.parse(node);
+          executableFile = `可执行文件 ${alinode ? `AliNode-v${version}` : `Node-v${version}`}`;
+        } catch (err) {
+          logger.error(`[getCoredumpFiles] parse executable failed: ${node}`);
+          executableFile = '可执行文件';
+        }
+      }
+
       return {
         fileId, coreFile, executableFile, agent, status, favor, executableStatus,
         creator: users[creator] ? users[creator].nick : creator,

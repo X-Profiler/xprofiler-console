@@ -25,10 +25,13 @@ class InstanceController extends Controller {
       return;
     }
 
-    const { nodeVersion, xtransitVersion, ulimit, osInfo } = JSON.parse(stdout);
+    const { nodeVersion, alinodeVersion, xtransitVersion, ulimit, osInfo } = JSON.parse(stdout);
     const list = [];
     if (nodeVersion) {
       list.push({ type: 'Node.js 版本', value: `v${nodeVersion}` });
+    }
+    if (alinodeVersion) {
+      list.push({ type: 'AliNode 版本', value: `v${alinodeVersion}` });
     }
     if (xtransitVersion) {
       list.push({ type: 'Xtransit 版本', value: `xtransit@${xtransitVersion}` });
