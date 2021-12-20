@@ -91,7 +91,9 @@ class ProcessController extends Controller {
       }
     }
 
-    if (!data.list.length) {
+    const livingProcesses = data.list.filter(proc => proc.cmd);
+
+    if (!data.list.length || !livingProcesses.length) {
       data.nodes = processes;
     } else {
       data.list.sort();

@@ -99,7 +99,7 @@ class OverviewService extends Service {
 
     const list = await system.getDataByPeriod(appId, agentId, 3);
     if (!list.length) {
-      return;
+      return {};
     }
 
     const log = list[0];
