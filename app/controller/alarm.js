@@ -76,13 +76,14 @@ class AlarmController extends Controller {
   }
 
   async getStrategyHistory() {
-    const { ctx, ctx: { service: { alarm } } } = this;
+    const { ctx, ctx: { service: { alarm, mysql } } } = this;
     const { strategyId, currentPage, pageSize } = ctx.query;
     const { app: appInfo, context: contextType } = ctx.strategy;
 
     const start = (currentPage - 1) * pageSize;
     const end = currentPage * pageSize;
     const history = await alarm.getHistoryByPeriod(strategyId, 24 * 60);
+    const { expression } = await mysql.getStrategyById(strategyId);
     const list = history
       .filter((...args) => args[1] >= start && args[1] < end)
       .map(log => {
@@ -105,7 +106,9 @@ class AlarmController extends Controller {
             detailPath = `/app/${appInfo}/instance?tab=error_log&agentId=${agentId}`;
             break;
           case 'xtransit_notification':
-            if (!pid) {
+            if (expression.includes('@core_count') || expression.includes('@core_count')) {
+              detailPath = `/app/${appInfo}/file`;
+            } else if (!pid) {
               detailPath = `/app/${appInfo}/instance?tab=module_risk&agentId=${agentId}`;
             }
             break;
