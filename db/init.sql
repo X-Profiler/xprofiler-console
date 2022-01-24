@@ -69,7 +69,7 @@ CREATE TABLE `coredumps`(
   `file_status` TINYINT UNSIGNED DEFAULT 0 COMMENT '0:creating, 1:created, 2:transferring, 3:transferred',
   `node` VARCHAR(250) NOT NULL COMMENT 'node path',
   `node_storage` VARCHAR(250) DEFAULT "" COMMENT 'node name',
-  `node_status` TINYINT UNSIGNED DEFAULT 0 COMMENT '0:creating, 1:created, 2:transferring, 3:transferred',
+  `node_status` TINYINT UNSIGNED DEFAULT 0 COMMENT '0:creating, 1:created, 2:transferring, 3:transferred, 99:create-failed',
   `user` INT UNSIGNED NOT NULL COMMENT 'user unique id',
   `favor` TINYINT UNSIGNED DEFAULT 0 COMMENT '0:not favor, 1:has favor',
   `token` VARCHAR(50) DEFAULT "" COMMENT 'file token',

@@ -70,8 +70,10 @@ class FileController extends Controller {
           result.status = 0;
         }
       } else {
-        await mysql.updateFileStatusById(fileId, fileType, 1);
-        result.status = 1;
+        const fileStatus = manager.handleXtransitResponse(await manager.checkFileStatus(app, agent, filePath));
+        const status = fileStatus ? fileStatus.exists ? 1 : 99 : 99;
+        await mysql.updateFileStatusById(fileId, fileType, status);
+        result.status = status;
       }
 
       return result;
