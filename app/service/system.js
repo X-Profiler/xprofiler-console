@@ -90,9 +90,16 @@ class SystemService extends Service {
       logMap[formatTime] = Object.assign(logMap[formatTime], this.mergeSystemLog(log));
     }
 
-    const list = Object.entries(logMap)
+    let list = Object.entries(logMap)
       .map(([, log]) => log)
-      .filter(log => checkFlags.every(flag => (strict ? log[flag] : flag.necessary ? log[flag] : true)));
+      .filter(log => checkFlags.every(flag => log.hasOwnProperty(flag)));
+
+    // fallback to strict mode if no xprofiler data
+    if (!list.length) {
+      list = Object.entries(logMap)
+        .map(([, log]) => log)
+        .filter(log => checkFlags.every(flag => (strict ? log.hasOwnProperty(flag) : flag.necessary ? log.hasOwnProperty(flag) : true)));
+    }
 
     list.forEach(log => {
       log.used_memory = log.total_memory - log.free_memory;

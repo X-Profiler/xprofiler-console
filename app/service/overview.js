@@ -8,8 +8,11 @@ class OverviewService extends Service {
       return 1;
     } else if (data < 85) {
       return 2;
+    } else if (data >= 85) {
+      return 3;
     }
-    return 3;
+
+    return 0;
   }
 
   comparePidsInAgent(log, key) {
@@ -97,7 +100,7 @@ class OverviewService extends Service {
   async getLatestSystemData(appId, agentId) {
     const { ctx: { service: { system } } } = this;
 
-    const list = await system.getDataByPeriod(appId, agentId, 3);
+    const list = await system.getDataByPeriod(appId, agentId, 3, false);
     if (!list.length) {
       return {};
     }
