@@ -51,6 +51,13 @@ class ProcessService extends Service {
         keys = [
           { key: 'marksweep_duration_last_record', label: 'marksweep_duration' },
           { key: 'scavange_duration_last_record', label: 'scavenge_duration' },
+          {
+            key: 'total_gc_duration',
+            compose: [
+              { opt: 'add', key: 'scavange_duration_last_record' },
+              { opt: 'add', key: 'marksweep_duration_last_record' },
+            ],
+          },
         ];
         break;
       case 'uvTrend':

@@ -111,12 +111,24 @@ class MetricService extends Service {
           if (typeof keyObj === 'string') {
             data[keyObj] = this.getAverageMetric(metrics, keyObj);
           } else {
-            const { key, label, handle } = keyObj;
+            const { key, label, compose, handle } = keyObj;
             const showLabel = label || key;
-            if (typeof handle === 'function') {
-              data[showLabel] = handle(this.getAverageMetric(metrics, key));
+            let value = 0;
+            if (Array.isArray(compose)) {
+              for (const { opt, key } of compose) {
+                if (opt === 'add') {
+                  value += this.getAverageMetric(metrics, key);
+                } else {
+                  value -= this.getAverageMetric(metrics, key);
+                }
+              }
             } else {
-              data[showLabel] = this.getAverageMetric(metrics, key);
+              value = this.getAverageMetric(metrics, key);
+            }
+            if (typeof handle === 'function') {
+              data[showLabel] = handle(value);
+            } else {
+              data[showLabel] = value;
             }
           }
         });

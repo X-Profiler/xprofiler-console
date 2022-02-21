@@ -162,6 +162,13 @@ class SystemService extends Service {
         keys = [
           { key: 'scavange_duration_last_record', label: 'scavenge_avg' },
           { key: 'marksweep_duration_last_record', label: 'marksweep_avg' },
+          {
+            key: 'total_gc_avg',
+            compose: [
+              { opt: 'add', key: 'scavange_duration_last_record' },
+              { opt: 'add', key: 'marksweep_duration_last_record' },
+            ],
+          },
         ];
         break;
       case 'diskUsageTrend': {
