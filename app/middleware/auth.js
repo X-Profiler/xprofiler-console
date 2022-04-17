@@ -80,9 +80,9 @@ module.exports = () => {
 
       // check the agent belongs to this app
       const agentId = ctx.query.agentId || ctx.request.body.agentId;
-      const { clients } = await manager.getClients(appId);
-      if (!Array.isArray(clients) || clients.every(client => client.agentId !== agentId)) {
-        return ctx.authFailed(403, '您没有此实例的访问权限');
+      const { client } = await manager.getClient(appId, agentId);
+      if (!client.server) {
+        return ctx.authFailed(403, '此实例尚未连接或者您没有此实例的访问权限');
       }
 
       await next();
