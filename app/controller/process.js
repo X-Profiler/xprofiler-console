@@ -181,6 +181,9 @@ class ProcessController extends Controller {
       case 'diag':
         command = 'diag_report';
         break;
+      case 'core':
+        command = 'generate_coredump';
+        break;
       default:
         break;
     }
@@ -193,9 +196,14 @@ class ProcessController extends Controller {
     if (result === false) {
       return;
     }
-    const { filepath: file } = JSON.parse(result);
+    const { type, filepath: file, executable_path, alinode_version, node_version } = JSON.parse(result);
     const { userId } = ctx.user;
-    await mysql.addFile(appId, agentId, action, file, userId);
+    if (type === 'core') {
+      const executableInfo = { executable_path, version: alinode_version ? alinode_version : node_version };
+      await mysql.addCoredump(appId, agentId, file, JSON.stringify(executableInfo), userId, 1, '', 1, '');
+    } else {
+      await mysql.addFile(appId, agentId, action, file, userId);
+    }
 
     ctx.body = { ok: true, data: { file } };
   }

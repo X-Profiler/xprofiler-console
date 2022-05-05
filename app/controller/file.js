@@ -163,7 +163,7 @@ class FileController extends Controller {
   }
 
   async downloadFile() {
-    const { ctx, ctx: { app: { storage } } } = this;
+    const { ctx, ctx: { app: { storage, modifyFileName } } } = this;
     const { fileId, fileType } = ctx.query;
     const { storageKey, [storageKey]: fileName } = ctx.file[ctx.createFileKey(fileId, fileType)];
 
@@ -174,7 +174,7 @@ class FileController extends Controller {
     // set headers
     ctx.set('content-type', 'application/octet-stream');
     ctx.set('content-encoding', 'gzip');
-    ctx.set('content-disposition', `attachment;filename=${fileName}`);
+    ctx.set('content-disposition', `attachment;filename=${modifyFileName(fileName)}`);
 
     // create pass
     const pass = new PassThrough();
