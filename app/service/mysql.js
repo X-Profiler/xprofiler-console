@@ -17,19 +17,20 @@ class MysqlService extends Service {
 
   /* table <user> */
   getUserByName(name) {
-    const sql = 'SELECT * FROM user WHERE name = ?';
+    const sql = 'SELECT *, user_name as name FROM user WHERE name = ?';
     const params = [name];
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
 
   saveUser(name, nick, pass, identity, mail) {
-    const sql = 'INSERT INTO user (name, nick, pass, identity, mail) VALUES (?, ?, ?, ?, ?)';
+    const sql =
+      'INSERT INTO user (user_name, nick, pass, identity, mail) VALUES (?, ?, ?, ?, ?)';
     const params = [name, nick, pass, identity, mail];
     return this.consoleQuery(sql, params);
   }
 
   getUserByIdentity(identity) {
-    const sql = 'SELECT * FROM user WHERE identity = ?';
+    const sql = 'SELECT *, user_name as name FROM user WHERE identity = ?';
     const params = [identity];
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
@@ -38,38 +39,43 @@ class MysqlService extends Service {
     if (!userIds.length) {
       return [];
     }
-    const sql = `SELECT * FROM user WHERE id in (${userIds.map(() => '?').join(',')})`;
+    const sql = `SELECT *, user_name as name FROM user WHERE id in (${userIds
+      .map(() => '?')
+      .join(',')})`;
     const params = [...userIds];
     return this.consoleQuery(sql, params);
   }
 
   /* table <apps> */
   getMyApps(userId) {
-    const sql = 'SELECT * FROM apps WHERE owner = ? ORDER BY gm_modified ASC';
+    const sql =
+      'SELECT *, app_name as name, app_owner as owner FROM apps WHERE owner = ? ORDER BY gm_modified ASC';
     const params = [userId];
     return this.consoleQuery(sql, params);
   }
 
   getJoinedApps(userId, status) {
-    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE user = ? AND status = ?) ORDER BY gm_modified ASC';
+    const sql =
+      'SELECT *, app_name as name, app_owner as owner FROM apps WHERE id in (SELECT app FROM members WHERE user = ? AND member_status = ?) ORDER BY gm_modified ASC';
     const params = [userId, status];
     return this.consoleQuery(sql, params);
   }
 
   saveApp(userId, appName, secret) {
-    const sql = 'INSERT INTO apps (name, owner, secret) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO apps (app_name, app_owner, secret) VALUES (?, ?, ?)';
     const params = [appName, userId, secret];
     return this.consoleQuery(sql, params);
   }
 
   renameApp(appId, newAppName) {
-    const sql = 'UPDATE apps SET name = ? WHERE id = ?';
+    const sql = 'UPDATE apps SET app_name = ? WHERE id = ?';
     const params = [newAppName, appId];
     return this.consoleQuery(sql, params);
   }
 
   getAppByAppId(appId) {
-    const sql = 'SELECT * FROM apps WHERE id = ?';
+    const sql =
+      'SELECT *, app_name as name, app_owner as owner FROM apps WHERE id = ?';
     const params = [appId];
     return this.consoleQuery(sql, params).then(data => data[0] || {});
   }
@@ -81,19 +87,21 @@ class MysqlService extends Service {
   }
 
   checkAppOwnerByUserId(appId, userId) {
-    const sql = 'SELECT * FROM apps WHERE id = ? AND owner = ?';
+    const sql =
+      'SELECT *, app_name as name, app_owner as owner FROM apps WHERE id = ? AND owner = ?';
     const params = [appId, userId];
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
 
   checkAppMemberByUserId(appId, userId, status) {
-    const sql = 'SELECT * FROM apps WHERE id in (SELECT app FROM members WHERE app = ? AND user = ? AND status = ?)';
+    const sql =
+      'SELECT *, app_name as name, app_owner as owner FROM apps WHERE id in (SELECT app FROM members WHERE app = ? AND user = ? AND member_status = ?)';
     const params = [appId, userId, status];
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
 
   updateAppOwner(appId, userId) {
-    const sql = 'UPDATE apps SET owner = ? WHERE id = ?';
+    const sql = 'UPDATE apps SET app_owner = ? WHERE id = ?';
     const params = [userId, appId];
     return this.consoleQuery(sql, params);
   }
@@ -103,13 +111,15 @@ class MysqlService extends Service {
     let sql = '';
     let params = [];
     if (type === 'all') {
-      sql = 'SELECT * FROM files WHERE app = ?';
+      sql = 'SELECT *, file_status as status FROM files WHERE app = ?';
       params = [appId];
     } else if (type === 'favor') {
-      sql = 'SELECT * FROM files WHERE app = ? AND favor = ?';
+      sql =
+        'SELECT *, file_status as status FROM files WHERE app = ? AND favor = ?';
       params = [appId, 1];
     } else {
-      sql = 'SELECT * FROM files WHERE app = ? AND type = ?';
+      sql =
+        'SELECT *, file_status as status FROM files WHERE app = ? AND type = ?';
       params = [appId, type];
     }
     sql += ' ORDER BY gm_create DESC';
@@ -117,14 +127,16 @@ class MysqlService extends Service {
   }
 
   addFile(appId, agentId, type, file, user, status = 0, storage = '') {
-    const sql = 'INSERT INTO files (app, agent, type, file, user, status, storage) '
-      + 'VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const sql =
+      'INSERT INTO files (app, agent, type, file, user, file_status, storage) ' +
+      'VALUES (?, ?, ?, ?, ?, ?, ?)';
     const params = [appId, agentId, type, file, user, status, storage];
     return this.consoleQuery(sql, params);
   }
 
   getFileByIdAndType(fileId, fileType) {
-    const sql = 'SELECT * FROM files WHERE id = ? AND type = ?';
+    const sql =
+      'SELECT *, file_status as status FROM files WHERE id = ? AND type = ?';
     const params = [fileId, fileType];
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
@@ -138,7 +150,8 @@ class MysqlService extends Service {
         sql = 'UPDATE coredumps SET file_status = ?, file_storage = ?, node_status = ?, node_storage = ?, token = ? WHERE id = ?';
         params = [status, fileStoragem, status, nodeStorage, token, fileId];
       } else {
-        sql = 'UPDATE files SET status = ?, token = ?, storage = ? WHERE id = ?';
+        sql =
+          'UPDATE files SET file_status = ?, token = ?, storage = ? WHERE id = ?';
         params = [status, token, storage, fileId];
       }
     } else {
@@ -146,7 +159,7 @@ class MysqlService extends Service {
         sql = 'UPDATE coredumps SET file_status = ?, node_status = ?, token = ? WHERE id = ?';
         params = [status, status, token, fileId];
       } else {
-        sql = 'UPDATE files SET status = ?, token = ? WHERE id = ?';
+        sql = 'UPDATE files SET file_status = ?, token = ? WHERE id = ?';
         params = [status, token, fileId];
       }
     }
@@ -218,19 +231,21 @@ class MysqlService extends Service {
 
   /* table <members> */
   getTeamMembersByAppId(appId) {
-    const sql = 'SELECT * FROM members WHERE app = ?';
+    const sql = 'SELECT *, member_status as status FROM members WHERE app = ?';
     const params = [appId];
     return this.consoleQuery(sql, params);
   }
 
   inviteMember(appId, invitedUser, status) {
-    const sql = 'INSERT INTO members (app, user, status) VALUES (?, ?, ?)';
+    const sql =
+      'INSERT INTO members (app, user, member_status) VALUES (?, ?, ?)';
     const params = [appId, invitedUser, status];
     return this.consoleQuery(sql, params);
   }
 
   confirmInvitation(invitedApp, userId) {
-    const sql = 'UPDATE members SET status = ? WHERE app = ? AND user = ?';
+    const sql =
+      'UPDATE members SET member_status = ? WHERE app = ? AND user = ?';
     const params = [2, invitedApp, userId];
     return this.consoleQuery(sql, params);
   }
@@ -249,7 +264,8 @@ class MysqlService extends Service {
 
   /* table <strategies> */
   getStrategiesByAppId(appId) {
-    const sql = 'SELECT * FROM strategies WHERE app = ? ORDER BY gm_create DESC';
+    const sql =
+      'SELECT *, strg_context as context, strg_status as status FROM strategies WHERE app = ? ORDER BY gm_create DESC';
     const params = [appId];
     return this.consoleQuery(sql, params);
   }
@@ -257,9 +273,10 @@ class MysqlService extends Service {
   addStrategy(data) {
     const { appId, contextType, pushType, customRuleExpr, customRuleDesc, webhookPush,
       webhookType = '', webhookAddress = '', webhookSign = '' } = data;
-    const sql = 'INSERT INTO strategies (app, context, push, webhook, wtype, waddress, wsign, '
-      + 'expression, content) '
-      + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const sql =
+      'INSERT INTO strategies (app, strg_context, push, webhook, wtype, waddress, wsign, ' +
+      'expression, content) ' +
+      'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
     const params = [appId, contextType, pushType,
       webhookPush ? 1 : 0,
       webhookPush ? webhookType : '',
@@ -270,7 +287,8 @@ class MysqlService extends Service {
   }
 
   getStrategyById(strategyId) {
-    const sql = 'SELECT * FROM strategies WHERE id = ?';
+    const sql =
+      'SELECT *, strg_context as context, strg_status as status FROM strategies WHERE id = ?';
     const params = [strategyId];
     return this.consoleQuery(sql, params).then(data => data[0]);
   }
@@ -278,8 +296,9 @@ class MysqlService extends Service {
   updateStrategy(data) {
     const { strategyId, contextType, pushType, customRuleExpr, customRuleDesc,
       webhookPush, webhookType = '', webhookAddress = '', webhookSign = '' } = data;
-    const sql = 'UPDATE strategies SET context = ?, push = ?, expression = ?, content = ?, '
-      + 'webhook = ?, wtype = ?, waddress = ?, wsign = ? WHERE id = ?';
+    const sql =
+      'UPDATE strategies SET strg_context = ?, push = ?, expression = ?, content = ?, ' +
+      'webhook = ?, wtype = ?, waddress = ?, wsign = ? WHERE id = ?';
     const params = [contextType, pushType, customRuleExpr, customRuleDesc,
       webhookPush ? 1 : 0,
       webhookPush ? webhookType : '',
@@ -290,7 +309,7 @@ class MysqlService extends Service {
   }
 
   updateStrategyStatus(strategyId, status) {
-    const sql = 'UPDATE strategies SET status = ? WHERE id = ?';
+    const sql = 'UPDATE strategies SET strg_status = ? WHERE id = ?';
     const params = [status, strategyId];
     return this.consoleQuery(sql, params);
   }
