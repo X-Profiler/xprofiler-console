@@ -70,9 +70,9 @@ module.exports = appInfo => {
     start_gc_profiling: 5 * 60 * 1000,
   };
 
-  config.profilingTimeExtra = 15 * 1000;
+  config.profilingTimeExtra = 60 * 1000;
 
-  config.profilingTimeExpired = 60 * 1000;
+  config.profilingTimeExpired = 120 * 1000;
 
   config.actionTime = {
     cpuprofile: {
@@ -92,6 +92,10 @@ module.exports = appInfo => {
       expired: config.profilingTimeExpired,
     },
     diag: {
+      profilingTime: config.profilingTimeExtra,
+      expired: config.profilingTimeExpired,
+    },
+    core: {
       profilingTime: config.profilingTimeExtra,
       expired: config.profilingTimeExpired,
     },
