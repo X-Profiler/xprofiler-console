@@ -158,21 +158,23 @@ class ProcessController extends Controller {
 
   async takeAction() {
     const { ctx, ctx: { app: { config: { profilingTime } }, service: { mysql } } } = this;
-    const { appId, agentId, pid, action } = ctx.request.body;
+    const { appId, agentId, pid, action, status } = ctx.request.body;
+
+    const prefix = Number(status) ? 'stop' : 'start';
 
     let command = '';
     const options = {};
     switch (action) {
       case 'cpuprofile':
-        command = 'start_cpu_profiling';
+        command = `${prefix}_cpu_profiling`;
         options.profiling_time = profilingTime[command];
         break;
       case 'heapprofile':
-        command = 'start_heap_profiling';
+        command = `${prefix}_heap_profiling`;
         options.profiling_time = profilingTime[command];
         break;
       case 'gcprofile':
-        command = 'start_gc_profiling';
+        command = `${prefix}_gc_profiling`;
         options.profiling_time = profilingTime[command];
         break;
       case 'heapsnapshot':
@@ -196,13 +198,23 @@ class ProcessController extends Controller {
     if (result === false) {
       return;
     }
+
     const { type, filepath: file, executable_path, alinode_version, node_version } = JSON.parse(result);
-    const { userId } = ctx.user;
-    if (type === 'core') {
-      const executableInfo = { executable_path, version: alinode_version ? alinode_version : node_version };
-      await mysql.addCoredump(appId, agentId, file, JSON.stringify(executableInfo), userId, 1, '', 1, '');
+
+    // only save with `start` case
+    if (prefix === 'start') {
+      const { userId } = ctx.user;
+      if (type === 'core') {
+        const executableInfo = { executable_path, version: alinode_version ? alinode_version : node_version };
+        await mysql.addCoredump(appId, agentId, file, JSON.stringify(executableInfo), userId, 1, '', 1, '');
+      } else {
+        await mysql.addFile(appId, agentId, action, file, userId);
+      }
     } else {
-      await mysql.addFile(appId, agentId, action, file, userId);
+      if (type !== 'core') {
+        const { id } = await mysql.getFileByFilePath(appId, agentId, file);
+        await mysql.updateFileStatusById(id, type, 1);
+      }
     }
 
     ctx.body = { ok: true, data: { file } };

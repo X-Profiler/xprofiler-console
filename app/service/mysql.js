@@ -116,6 +116,12 @@ class MysqlService extends Service {
     return this.consoleQuery(sql, params);
   }
 
+  getFileByFilePath(appId, agentId, filePath, storage = '') {
+    const sql = 'SELECT * FROM files WHERE app = ? AND agent = ? AND file = ? AND storage = ?';
+    const params = [appId, agentId, filePath, storage];
+    return this.consoleQuery(sql, params).then(data => data[0]);
+  }
+
   addFile(appId, agentId, type, file, user, status = 0, storage = '') {
     const sql = 'INSERT INTO files (app, agent, type, file, user, status, storage) '
       + 'VALUES (?, ?, ?, ?, ?, ?, ?)';

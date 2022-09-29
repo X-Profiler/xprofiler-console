@@ -72,7 +72,7 @@ module.exports = appInfo => {
 
   config.profilingTimeExtra = 60 * 1000;
 
-  config.profilingTimeExpired = 120 * 1000;
+  config.profilingTimeExpired = 300 * 1000;
 
   config.actionTime = {
     cpuprofile: {
