@@ -205,7 +205,8 @@ class ProcessController extends Controller {
     if (prefix === 'start') {
       const { userId } = ctx.user;
       if (type === 'core') {
-        const executableInfo = { executable_path, version: alinode_version ? alinode_version : node_version };
+        const alinode = !!alinode_version;
+        const executableInfo = { executable_path, alinode, version: alinode ? alinode_version : node_version };
         await mysql.addCoredump(appId, agentId, file, JSON.stringify(executableInfo), userId, 1, '', 1, '');
       } else {
         await mysql.addFile(appId, agentId, action, file, userId);

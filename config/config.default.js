@@ -23,6 +23,7 @@ module.exports = appInfo => {
 
   config.static = {
     gzip: true,
+    dir: path.join(__dirname, '../app/public'),
   };
 
   config.siteFile = {
@@ -30,6 +31,7 @@ module.exports = appInfo => {
   };
 
   config.view = {
+    root: path.join(__dirname, '../app/view'),
     mapping: {
       '.html': 'nunjucks',
     },
