@@ -1,8 +1,7 @@
 {
-  "name": "xprofiler-console",
+  "name": "@xprofiler/console",
   "version": "1.0.0",
   "description": "console for xprofiler",
-  "private": true,
   "egg": {
     "declarations": true
   },
@@ -43,6 +42,13 @@
     "ci": "npm run lint && npm run cov",
     "autod": "autod"
   },
+  "files": [
+    "app",
+    "config",
+    "db",
+    "lib",
+    "index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/X-Profiler/xprofiler-console.git"
