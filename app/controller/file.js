@@ -115,9 +115,9 @@ class FileController extends Controller {
     await mysql.updateFileStatusById(fileId, fileType, 2, token);
 
     // notification
-    const { xprofilerConsole: server } = app.config;
+    const { xprofilerConsole: server, forceHttp } = app.config;
     const transferResult = await ctx.handleXtransitResponse('transferFile', appId, agentId,
-      fileId, fileType, filePath, server, token);
+      fileId, fileType, filePath, forceHttp ? server.replace('https://', 'http://') : server, token);
     if (transferResult === false) {
       await this.updateFileStatusByIdWhenFailed(fileId, fileType, storagePath);
       return;

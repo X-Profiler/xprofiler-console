@@ -109,6 +109,8 @@ module.exports = appInfo => {
 
   config.uploadNoncePrefix = 'XTRANSIT_UPLOAD_NONCE::';
 
+  config.forceHttp = false;
+
   const userConfig = {};
 
   // async config
