@@ -67,9 +67,9 @@ module.exports = appInfo => {
   config.httpTimeout = 15000;
 
   config.profilingTime = {
-    start_cpu_profiling: 5 * 60 * 1000,
-    start_heap_profiling: 5 * 60 * 1000,
-    start_gc_profiling: 5 * 60 * 1000,
+    start_cpu_profiling: 3 * 60 * 1000,
+    start_heap_profiling: 3 * 60 * 1000,
+    start_gc_profiling: 3 * 60 * 1000,
   };
 
   config.profilingTimeExtra = 60 * 1000;
