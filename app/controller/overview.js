@@ -68,7 +68,10 @@ class OverviewController extends Controller {
   }
 
   async getMainMetrics() {
-    const { ctx, ctx: { app, service: { manager, overview } } } = this;
+    const { ctx, ctx: { app,
+      app: { config: { showHeapLimit } },
+      service: { manager, overview } },
+    } = this;
     const { appId, type } = ctx.query;
 
     const { clients } = await manager.getClients(appId);
@@ -103,15 +106,23 @@ class OverviewController extends Controller {
         switch (type) {
           case 'processCpuUsage': {
             const { maxPid, averageData } = overview.comparePidsInAgent(log, 'cpu_60');
-            data.status = overview.getStatus(averageData);
-            data.title = `${Number(averageData.toFixed(2))}%`;
+            data.title = maxPid ? `${Number(averageData.toFixed(2))}%` : '-';
+            data.status = maxPid ? overview.getStatus(averageData) : 0;
             data.pid = maxPid;
           }
             break;
           case 'processMemoryUsage': {
             const { maxPid, maxData } = overview.comparePidsInAgent(log, 'heap_used_percent');
-            data.status = overview.getStatus(maxData);
-            data.title = `${app.formatSize(log[maxPid].heap_used)}`;
+            const maxHeapSize = maxPid
+              ? `${showHeapLimit ? 'Max Heap: ' : ''}` + `${app.formatSize(log[maxPid].heap_used)}` + `${showHeapLimit ? `@${maxPid}` : ''}`
+              : '-';
+            const heapLimit = maxPid
+              ? showHeapLimit
+                ? `Heap Limit: ${Object.entries(log).map(([pid, item]) => `${app.formatSize(item.heap_limit)}@${pid}`).join(', ')}`
+                : ''
+              : '';
+            data.title = `${maxHeapSize}${heapLimit ? `\n${heapLimit}` : ''}`;
+            data.status = maxPid ? overview.getStatus(maxData) : 0;
             data.pid = maxPid;
           }
             break;
