@@ -3,6 +3,6 @@
   "rules": {
     "array-bracket-spacing": 0,
     "array-callback-return": 0,
-    "no-useless-concat": 0,
+    "no-useless-concat": 0
   }
 }
