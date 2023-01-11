@@ -111,6 +111,8 @@ module.exports = appInfo => {
 
   config.forceHttp = false;
 
+  config.showHeapLimit = false;
+
   const userConfig = {};
 
   // async config
