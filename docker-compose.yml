@@ -1,0 +1,29 @@
+version: '3.6'
+services:
+
+  nodejs:
+    image: node # 镜像名
+    container_name: node # 容器名
+    restart: always # 在容器退出时总是重启容器
+    ports: #容器的端口映射到宿主机上
+      - "8080:8080"
+
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes: # 将容器的目录映射到宿主机上目录中
+      - "./db:/docker-entrypoint-initdb.d/" # 启动时自动执行db下的sql文件
+    ports:
+      - '3306:3306'
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
