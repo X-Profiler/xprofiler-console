@@ -29,13 +29,13 @@ class SystemController extends Controller {
     } = latestSystemLog;
 
     const data = {
-      osCpu: Number((used_cpu * 100).toFixed(2)),
-      osMem: Number((used_memory_percent * 100).toFixed(2)),
+      osCpu: Number((Number(used_cpu) * 100).toFixed(2)),
+      osMem: Number((Number(used_memory_percent) * 100).toFixed(2)),
       maxDisk: max_disk_usage,
       disks: disks_json,
-      load1: load1 && Number(load1.toFixed(2)),
-      load5: load5 && Number(load5.toFixed(2)),
-      load15: load15 && Number(load15.toFixed(2)),
+      load1: load1 && Number(Number(load1).toFixed(2)),
+      load5: load5 && Number(Number(load5).toFixed(2)),
+      load15: load15 && Number(Number(load15).toFixed(2)),
       nodeCount: node_count,
       scavengeTotal: total_scavange_duration,
       scavengeAverage: scavange_duration_last_record,
@@ -43,7 +43,7 @@ class SystemController extends Controller {
       marksweepAverage: marksweep_duration_last_record,
       qps: Number((http_response_sent / 60).toFixed(2)),
       rtExpired: http_patch_timeout,
-      rtAverage: http_rt,
+      rtAverage: Number(http_rt),
     };
 
     ctx.body = { ok: true, data };

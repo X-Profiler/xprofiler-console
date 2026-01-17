@@ -33,7 +33,12 @@ class ProcessService extends Service {
         extra = app.formatSize(limit);
         break;
       case 'cpuTrend':
-        keys = ['cpu_now', 'cpu_15', 'cpu_30', 'cpu_60'];
+        keys = [
+          { key: 'cpu_now', format: value => Number(value) },
+          { key: 'cpu_15', format: value => Number(value) },
+          { key: 'cpu_30', format: value => Number(value) },
+          { key: 'cpu_60', format: value => Number(value) },
+        ];
         break;
       case 'heapSpaceTrend':
         keys = [

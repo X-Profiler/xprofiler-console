@@ -27,7 +27,7 @@ class MetricService extends Service {
     return list;
   }
 
-  getAverageMetric(metrics, key) {
+  getAverageMetric(metrics, key, format) {
     const { ctx: { app } } = this;
 
     let value = 0;
@@ -36,7 +36,10 @@ class MetricService extends Service {
         continue;
       }
 
-      const metricValue = metric[key];
+      let metricValue = metric[key];
+      if (typeof format === 'function') {
+        metricValue = format(metricValue);
+      }
 
       // disks
       if (typeof metricValue === 'object') {
@@ -45,7 +48,7 @@ class MetricService extends Service {
 
       // common metric value
       if (app.isNumber(metricValue)) {
-        value += metric[key] || 0;
+        value += metricValue || 0;
       }
     }
     return value / metrics.length;
@@ -111,19 +114,19 @@ class MetricService extends Service {
           if (typeof keyObj === 'string') {
             data[keyObj] = this.getAverageMetric(metrics, keyObj);
           } else {
-            const { key, label, compose, handle } = keyObj;
+            const { key, label, compose, handle, format } = keyObj;
             const showLabel = label || key;
             let value = 0;
             if (Array.isArray(compose)) {
               for (const { opt, key } of compose) {
                 if (opt === 'add') {
-                  value += this.getAverageMetric(metrics, key);
+                  value += this.getAverageMetric(metrics, key, format);
                 } else {
-                  value -= this.getAverageMetric(metrics, key);
+                  value -= this.getAverageMetric(metrics, key, format);
                 }
               }
             } else {
-              value = this.getAverageMetric(metrics, key);
+              value = this.getAverageMetric(metrics, key, format);
             }
             if (typeof handle === 'function') {
               data[showLabel] = handle(value);

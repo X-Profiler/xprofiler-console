@@ -130,6 +130,7 @@ class SystemService extends Service {
       case 'osCpuTrend':
         keys = [{
           key: 'used_cpu', label: 'os_cpu',
+          format: value => Number(value),
           handle: value => Number((value * 100).toFixed(2)),
         }];
         extra = `${latestLog.cpu_count} Cores`;
@@ -147,9 +148,9 @@ class SystemService extends Service {
         break;
       case 'loadTrend':
         keys = [
-          { key: 'load1', handle: value => Number(value.toFixed(2)) },
-          { key: 'load5', handle: value => Number(value.toFixed(2)) },
-          { key: 'load15', handle: value => Number(value.toFixed(2)) },
+          { key: 'load1', format: value => Number(value), handle: value => Number(value.toFixed(2)) },
+          { key: 'load5', format: value => Number(value), handle: value => Number(value.toFixed(2)) },
+          { key: 'load15', format: value => Number(value), handle: value => Number(value.toFixed(2)) },
         ];
         break;
       case 'nodeCountTrend':
@@ -186,6 +187,7 @@ class SystemService extends Service {
       case 'httpResponseTrend':
         keys = [{
           key: ['http_rt'], label: 'response_time',
+          format: value => Number(value),
           handle: value => Number(value).toFixed(2),
         }];
         break;

@@ -77,7 +77,7 @@ class ProcessController extends Controller {
           cmd: process ? process.command : undefined,
           startTime: (process ? Date.now() : new Date(log_time).getTime()) - uptime * 1000,
           updateTime: process ? undefined : new Date(log_time).getTime(),
-          cpuUsage: cpu_60.toFixed(2),
+          cpuUsage: Number(cpu_60).toFixed(2),
           heapUsage: heap_used_percent.toFixed(2),
           gcUsage: (gc_time_during_last_record / (60 * 1000) * 100).toFixed(2),
           rss,
