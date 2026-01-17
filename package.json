@@ -37,7 +37,7 @@
     "init-test-db": "db/init_unittest_db.sh",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "npm run init-test-db && egg-bin test",
-    "cov": "npm run init-test-db && egg-bin test",
+    "cov": "npm run init-test-db && egg-bin cov",
     "lint": "eslint app config lib test --fix",
     "ci": "npm run lint && npm run cov",
     "autod": "autod"
