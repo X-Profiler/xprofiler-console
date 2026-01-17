@@ -21,8 +21,8 @@
   "devDependencies": {
     "autod": "^3.1.0",
     "autod-egg": "^1.1.0",
-    "egg-bin": "^4.14.1",
-    "egg-mock": "^4.0.0",
+    "egg-bin": "4",
+    "egg-mock": "4",
     "eslint": "^7.0.0",
     "eslint-config-egg": "^8.0.1"
   },
@@ -37,7 +37,7 @@
     "init-test-db": "db/init_unittest_db.sh",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "npm run init-test-db && egg-bin test",
-    "cov": "npm run init-test-db && egg-bin cov",
+    "cov": "npm run init-test-db && egg-bin test",
     "lint": "eslint app config lib test --fix",
     "ci": "npm run lint && npm run cov",
     "autod": "autod"
